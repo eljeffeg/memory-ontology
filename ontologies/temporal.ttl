@@ -1,0 +1,133 @@
+@prefix temporal: <http://nova.dev/temporal#> .
+@prefix memory: <http://nova.dev/memory#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix vann: <http://purl.org/vocab/vann/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://nova.dev/temporal#>
+    a owl:Ontology ;
+    rdfs:label "Temporal assertion vocabulary"@en ;
+    dcterms:title "Temporal assertion vocabulary"@en ;
+    dcterms:description "Valid time, transaction time, and supersession for one temporal assertion. Domain data and agent memory share these terms. Memory-only terms live in a separate vocabulary."@en ;
+    dcterms:issued "2026-11-03"^^xsd:date ;
+    owl:versionIRI <http://nova.dev/temporal/0.1.0> ;
+    owl:versionInfo "0.1.0" ;
+    vann:preferredNamespacePrefix "temporal" ;
+    vann:preferredNamespaceUri "http://nova.dev/temporal#" ;
+    rdfs:seeAlso <http://nova.dev/memory#> ;
+    rdfs:comment "A record is a temporal:TemporalAssertion that rdf:reifies one triple term. A later record is a new resource. It points at the closed record with temporal:supersedes. temporal:validUntil and temporal:recordedUntil may be additional triples about the earlier record. A store may instead derive each named end from the superseding record's start."@en ;
+    rdfs:comment "Valid time is when the statement holds in the world. The stored interval is temporal:validFrom and temporal:validUntil: half-open, xsd:dateTimeStamp. An instant uses temporal:validAt and does not also carry the interval. A world change closes valid time. The earlier statement was true until validUntil, and it remains the answer to what was true at a time inside that interval."@en ;
+    rdfs:comment "Transaction time is when the store held the record. temporal:recordedFrom and temporal:recordedUntil are the portable datetime spelling of that interval. A store whose native transaction log is a commit sequence may omit the literals. The sequence is the transaction time. Its RDF form is temporal:recordedSequence and temporal:recordedUntilSequence. Do not invent a second caller-supplied clock to fill the datetime literals. An RDF export of the triples alone does not carry that sequence. A portable export includes either temporal:recordedFrom and temporal:recordedUntil, or temporal:recordedSequence and temporal:recordedUntilSequence. An RDF export of a store whose transaction time is a commit sequence must include these integers. recordedUntilSequence stays absent while the recorded interval is open, same as recordedUntil. A correction of a mistake closes transaction time."@en ;
+    rdfs:comment "When a record has both temporal:recordedFrom and temporal:recordedSequence, they are two spellings of one transaction interval and must agree. In a store with a commit log, the sequence decides what is current: recorded at or before the head commit, and not closed by a later commit. temporal:recordedFrom decides what is current only when no sequence is present. That datetime reading is a start at or before now, and no end or now before the end."@en ;
+    skos:editorialNote "temporal:validFrom is not dcterms:created, prov:generatedAtTime, or time:hasBeginning. temporal:recordedFrom is not those properties either: they say when something was generated or created, which is not the transaction-time interval. temporal:supersedes is not prov:wasRevisionOf or prov:wasInvalidatedBy. It is not dcterms:replaces."@en ;
+    skos:editorialNote "OWL-Time can be derived from the endpoint literals. Instant nodes are not stored. rdf:reifies is RDF 1.2, and some stores do not implement it yet. This vocabulary defines no other reification predicate."@en .
+
+temporal:factReading
+    a owl:AnnotationProperty ;
+    rdfs:label "fact reading"@en ;
+    rdfs:comment "A human-readable sentence pattern. Documentation only. It is not stored on a record and does not enforce a rule."@en .
+
+temporal:TemporalAssertion
+    a owl:Class ;
+    rdfs:label "Temporal assertion"@en ;
+    skos:definition "One assertion occurrence with a reified proposition, a valid-time coordinate, and a transaction-time coordinate."@en ;
+    rdfs:seeAlso rdf:reifies ;
+    temporal:factReading "A temporal record is a temporal assertion."@en ;
+    rdfs:comment "rdf:type is temporal:TemporalAssertion. Domain data uses this class and does not require a memory kind, owner, or closes marker. A memory record is this class plus the memory vocabulary. temporal:validAt is allowed when the assertion is a single instant and does not also carry an interval. A memory record must not carry temporal:validAt together with temporal:validFrom."@en ;
+    rdfs:comment "rdf:reifies links the record to one triple term. That predicate is RDF 1.2, and some stores do not implement it yet."@en .
+
+temporal:validFrom
+    a owl:DatatypeProperty ;
+    rdfs:label "valid from"@en ;
+    skos:definition "Inclusive start of the half-open interval when the statement holds in the world."@en ;
+    temporal:factReading "A temporal record is valid from Time."@en ;
+    rdfs:comment "A real change closes valid time. The value is an xsd:dateTimeStamp. This interval is not transaction time. There is one stored valid-time interval."@en ;
+    rdfs:domain temporal:TemporalAssertion ;
+    rdfs:range xsd:dateTimeStamp .
+
+temporal:validUntil
+    a owl:DatatypeProperty ;
+    rdfs:label "valid until"@en ;
+    skos:definition "Exclusive end of the half-open interval when the statement holds in the world."@en ;
+    temporal:factReading "A temporal record is valid until Time."@en ;
+    rdfs:comment "The interval covers t when validFrom <= t and t < validUntil. An open interval has temporal:validFrom and omits this literal. temporal:validUntil without temporal:validFrom is not an open interval. A world change closes valid time. The earlier statement was true until this end, and it remains the answer to what was true at t inside that interval. The end may be an added triple, or a store may derive it from the superseding record's validFrom."@en ;
+    rdfs:domain temporal:TemporalAssertion ;
+    rdfs:range xsd:dateTimeStamp .
+
+temporal:validAt
+    a owl:DatatypeProperty ;
+    rdfs:label "valid at"@en ;
+    skos:definition "A single instant of valid time."@en ;
+    temporal:factReading "A temporal record is valid at Time."@en ;
+    rdfs:comment "The value is an xsd:dateTimeStamp. Do not combine this instant with temporal:validFrom or temporal:validUntil. An instant is not an empty interval."@en ;
+    rdfs:domain temporal:TemporalAssertion ;
+    rdfs:range xsd:dateTimeStamp .
+
+temporal:recordedFrom
+    a owl:DatatypeProperty ;
+    rdfs:label "recorded from"@en ;
+    skos:definition "Inclusive start of the half-open interval when the store held this record."@en ;
+    temporal:factReading "A temporal record was recorded from Time."@en ;
+    rdfs:comment "Portable datetime spelling of transaction time. Optional when the store's native transaction log is a commit sequence. The sequence is the transaction time in that case, written for export as temporal:recordedSequence and temporal:recordedUntilSequence. Do not invent a second caller-supplied clock to fill this literal. An RDF export of the triples alone does not carry that sequence. A portable export includes either this literal and temporal:recordedUntil, or temporal:recordedSequence and temporal:recordedUntilSequence. Asking what was believed at a time uses transaction time."@en ;
+    rdfs:domain temporal:TemporalAssertion ;
+    rdfs:range xsd:dateTimeStamp .
+
+temporal:recordedUntil
+    a owl:DatatypeProperty ;
+    rdfs:label "recorded until"@en ;
+    skos:definition "Exclusive end of the half-open interval when the store held this record."@en ;
+    temporal:factReading "A temporal record was recorded until Time."@en ;
+    rdfs:comment "The interval covers t when recordedFrom <= t and t < recordedUntil. An open recorded interval has temporal:recordedFrom and omits this literal. temporal:recordedUntil without temporal:recordedFrom is not an open interval. A correction closes transaction time: the earlier statement was believed until this end, and it was not true in the world. It remains the answer to what was believed at t inside the recorded interval. Optional when transaction time is a native commit sequence. The end may be an added triple, or a store may derive it from the superseding record's recordedFrom."@en ;
+    rdfs:domain temporal:TemporalAssertion ;
+    rdfs:range xsd:dateTimeStamp .
+
+temporal:recordedSequence
+    a owl:DatatypeProperty ;
+    rdfs:label "recorded sequence"@en ;
+    skos:definition "Inclusive start of the half-open commit sequence when the store held this record."@en ;
+    temporal:factReading "A temporal record was recorded from commit sequence Sequence."@en ;
+    rdfs:comment "The RDF form of a commit-sequence transaction time. A bare integer and xsd:nonNegativeInteger are accepted when they are >= 0. Other integer subtypes, such as xsd:long, are not. Exporters should write xsd:integer. A negative value is not accepted. Optional on an in-process write when the store already keeps the sequence in its transaction log. An RDF export of a store whose transaction time is a commit sequence must include this integer. The triples alone do not carry the sequence. Do not invent temporal:recordedFrom to stand in for it. When both this sequence and temporal:recordedFrom are present, they are two spellings of one transaction interval and must agree. In a store with a commit log, the sequence decides what is current: at or before the head commit, and not closed by a later commit. temporal:recordedFrom decides what is current only when no sequence is present."@en ;
+    rdfs:domain temporal:TemporalAssertion ;
+    rdfs:range [
+        a rdfs:Datatype ;
+        owl:unionOf ( xsd:integer xsd:nonNegativeInteger )
+    ] .
+
+temporal:recordedUntilSequence
+    a owl:DatatypeProperty ;
+    rdfs:label "recorded until sequence"@en ;
+    skos:definition "Exclusive end of the half-open commit sequence when the store held this record."@en ;
+    temporal:factReading "A temporal record was recorded until commit sequence Sequence."@en ;
+    rdfs:comment "The interval covers commit c when recordedSequence <= c and c < recordedUntilSequence. Same half-open idea as temporal:recordedFrom and temporal:recordedUntil. An open recorded interval has temporal:recordedSequence and omits this integer. An end with no start is not an open interval. The value is an integer >= 0. A bare Turtle integer is xsd:integer and is accepted. xsd:nonNegativeInteger is the recommended datatype. A negative value is not accepted. Optional on an in-process write. An export includes it when the recorded interval is closed."@en ;
+    rdfs:domain temporal:TemporalAssertion ;
+    rdfs:range [
+        a rdfs:Datatype ;
+        owl:unionOf ( xsd:integer xsd:nonNegativeInteger )
+    ] .
+
+temporal:supersedes
+    a owl:ObjectProperty ;
+    rdfs:label "supersedes"@en ;
+    skos:definition "Links a new temporal record to the earlier record it closes."@en ;
+    temporal:factReading "A temporal record supersedes an earlier temporal record."@en ;
+    rdfs:comment "The new record is a new resource and points at the earlier record. An ordinary supersession closes valid time. It is a world change. The closed end is temporal:validUntil on the earlier record, or it is derived from the successor's temporal:validFrom. Domain records do not carry memory:closes. A domain record that supersedes a memory record and carries no memory:closes is still a world change: it closes valid time, and it is not rejected. A correction that closes recorded time is signaled only by memory:closes memory:RecordedTime. Domain records do not have that marker, so they cannot mean the earlier statement was a mistake. The end may be an added triple, or a store may derive the named end from the newer record's start. The earlier statement answers what was true at t only inside its valid interval, and what was believed at t only inside its recorded interval."@en ;
+    rdfs:domain temporal:TemporalAssertion ;
+    rdfs:range temporal:TemporalAssertion .
+
+temporal:scopeGraph
+    a owl:ObjectProperty ;
+    rdfs:label "scope graph"@en ;
+    skos:definition "The graph the reified proposition is about."@en ;
+    temporal:factReading "A temporal record has scope graph Graph."@en ;
+    rdfs:comment "At most one object, and that object is an IRI: a graph IRI, or temporal:DefaultGraph when the proposition has no named domain graph."@en ;
+    rdfs:domain temporal:TemporalAssertion .
+
+temporal:DefaultGraph
+    a owl:NamedIndividual ;
+    rdfs:label "Default graph"@en ;
+    skos:definition "The scopeGraph object used when a proposition has no named domain graph."@en ;
+    rdfs:comment "It is not a SPARQL keyword and not a time instant."@en .

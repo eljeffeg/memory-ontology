@@ -1,0 +1,203 @@
+@prefix software: <http://nova.dev/software#> .
+@prefix work: <http://nova.dev/work#> .
+@prefix doap: <http://usefulinc.com/ns/doap#> .
+@prefix woc: <http://rdf.webofcode.org/woc/> .
+@prefix schema: <https://schema.org/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix vann: <http://purl.org/vocab/vann/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://nova.dev/software#>
+    a owl:Ontology ;
+    rdfs:label "Software Work Ontology"@en ;
+    dcterms:title "Software Work Ontology"@en ;
+    dcterms:description "Software classes under the work vocabulary. Repositories align to DOAP. Code structure is recognized, not imported."@en ;
+    dcterms:issued "2026-11-04"^^xsd:date ;
+    owl:versionIRI <http://nova.dev/software/0.1.0> ;
+    owl:versionInfo "0.1.0" ;
+    vann:preferredNamespacePrefix "software" ;
+    vann:preferredNamespaceUri "http://nova.dev/software#" ;
+    rdfs:seeAlso work: , doap: , woc: , schema:SoftwareSourceCode , <https://codemeta.github.io/> ;
+    rdfs:comment "Session facts use the local properties. doap:name, doap:shortdesc, doap:homepage, doap:repository, and doap:programming-language describe a project catalog card. A caller who already has those triples may keep them. Memory proposals use rdfs:label or skos:prefLabel for the name a person says."@en ;
+    rdfs:comment "A file IRI is chosen by the caller and distinguishes repository plus path. A package IRI distinguishes its coordinates. An issue IRI is its URL. The same path in two repositories is two IRIs. This vocabulary does not mint IRIs."@en ;
+    rdfs:comment "software:path, software:assignee, and software:status may be marked functional by a memory confirm policy. They are not owl:FunctionalProperty. doap:revision is a version string. A commit stays software:Commit."@en ;
+    skos:editorialNote "This file does not owl:import the work vocabulary, DOAP, or CodeOntology. Loading this file brings the bridge axioms. CodeOntology is GPL-3.0 and is not vendored. woc:Project is a build project, so software:Repository does not subclass it. woc:Package is a Java package, so software:Package does not subclass it."@en ;
+    skos:editorialNote "software:definedIn is not a subproperty of woc:isDeclaredBy. That property is functional and points from a code element to the type that declares it, not to a file. A caller may assert woc:isDeclaredBy or woc:hasPackage beside software:definedIn. woc:hasDependency is a library-to-project link, so software:dependsOn does not subclass it."@en .
+
+software:Repository
+    a owl:Class ;
+    rdfs:subClassOf work:Artifact , doap:Project ;
+    rdfs:label "Repository"@en ;
+    skos:definition "A source repository. It is a DOAP project, not a build project."@en .
+
+software:SourceFile
+    a owl:Class ;
+    rdfs:subClassOf work:Artifact ;
+    rdfs:label "Source file"@en ;
+    skos:definition "A file of source text."@en ;
+    rdfs:seeAlso schema:SoftwareSourceCode .
+
+software:Symbol
+    a owl:Class ;
+    rdfs:subClassOf work:Artifact ;
+    rdfs:label "Symbol"@en ;
+    skos:definition "One named construct in source. A caller who knows the construct may also type the same IRI woc:Method, woc:Class, woc:Field, or woc:Constructor."@en ;
+    rdfs:seeAlso woc:CodeElement .
+
+software:Package
+    a owl:Class ;
+    rdfs:subClassOf work:Artifact ;
+    rdfs:label "Package"@en ;
+    skos:definition "A distributable unit, distinguished by its coordinates."@en ;
+    rdfs:seeAlso woc:Package , woc:Library , <https://codemeta.github.io/> .
+
+software:Test
+    a owl:Class ;
+    rdfs:subClassOf work:Artifact ;
+    rdfs:label "Test"@en ;
+    skos:definition "A test."@en .
+
+software:Issue
+    a owl:Class ;
+    rdfs:subClassOf work:WorkItem ;
+    rdfs:label "Issue"@en ;
+    skos:definition "An issue. Its IRI is its URL."@en .
+
+software:PullRequest
+    a owl:Class ;
+    rdfs:subClassOf work:WorkItem ;
+    rdfs:label "Pull request"@en ;
+    skos:definition "A pull request."@en .
+
+software:Decision
+    a owl:Class ;
+    rdfs:subClassOf work:WorkItem ;
+    rdfs:label "Decision"@en ;
+    skos:definition "A decision about the software."@en .
+
+software:Commit
+    a owl:Class ;
+    rdfs:subClassOf work:Change ;
+    rdfs:label "Commit"@en ;
+    skos:definition "A commit. doap:revision remains a version string."@en .
+
+software:Edit
+    a owl:Class ;
+    rdfs:subClassOf work:Change ;
+    rdfs:label "Edit"@en ;
+    skos:definition "An edit that may be smaller than a commit."@en .
+
+software:Build
+    a owl:Class ;
+    rdfs:subClassOf work:Change ;
+    rdfs:label "Build"@en ;
+    skos:definition "A build."@en .
+
+software:Failure
+    a owl:Class ;
+    rdfs:subClassOf work:Change ;
+    rdfs:label "Failure"@en ;
+    skos:definition "A failed build, test, or run."@en .
+
+software:Developer
+    a owl:Class ;
+    rdfs:subClassOf work:Agent ;
+    rdfs:label "Developer"@en ;
+    skos:definition "A person who changes the software."@en .
+
+software:Reviewer
+    a owl:Class ;
+    rdfs:subClassOf work:Agent ;
+    rdfs:label "Reviewer"@en ;
+    skos:definition "A person who reviews a change."@en .
+
+software:Assistant
+    a owl:Class ;
+    rdfs:subClassOf work:Agent ;
+    rdfs:label "Assistant"@en ;
+    skos:definition "A tool or model that takes part in the work."@en .
+
+software:modifies
+    a owl:ObjectProperty ;
+    rdfs:label "modifies"@en ;
+    skos:definition "A change modifies an artifact."@en ;
+    rdfs:domain work:Change ;
+    rdfs:range work:Artifact ;
+    owl:inverseOf software:modifiedBy .
+
+software:modifiedBy
+    a owl:ObjectProperty ;
+    rdfs:label "modified by"@en ;
+    skos:definition "An artifact is modified by a change."@en ;
+    owl:inverseOf software:modifies .
+
+software:fixes
+    a owl:ObjectProperty ;
+    rdfs:label "fixes"@en ;
+    skos:definition "A change fixes a work item."@en ;
+    rdfs:domain work:Change ;
+    rdfs:range work:WorkItem ;
+    owl:inverseOf software:fixedBy .
+
+software:fixedBy
+    a owl:ObjectProperty ;
+    rdfs:label "fixed by"@en ;
+    skos:definition "A work item is fixed by a change."@en ;
+    owl:inverseOf software:fixes .
+
+software:definedIn
+    a owl:ObjectProperty ;
+    rdfs:label "defined in"@en ;
+    skos:definition "A symbol is defined in an artifact, usually a source file."@en ;
+    rdfs:domain software:Symbol ;
+    rdfs:range work:Artifact ;
+    owl:inverseOf software:defines .
+
+software:defines
+    a owl:ObjectProperty ;
+    rdfs:label "defines"@en ;
+    skos:definition "An artifact defines a symbol."@en ;
+    owl:inverseOf software:definedIn .
+
+software:reviewedBy
+    a owl:ObjectProperty ;
+    rdfs:label "reviewed by"@en ;
+    skos:definition "A change or work item is reviewed by an agent."@en ;
+    rdfs:range work:Agent ;
+    owl:inverseOf software:reviews .
+
+software:reviews
+    a owl:ObjectProperty ;
+    rdfs:label "reviews"@en ;
+    skos:definition "An agent reviews a change or work item."@en ;
+    owl:inverseOf software:reviewedBy .
+
+software:dependsOn
+    a owl:ObjectProperty ;
+    rdfs:subPropertyOf work:dependsOn ;
+    rdfs:label "depends on"@en ;
+    skos:definition "A package or artifact depends on another. This is not functional."@en .
+
+software:path
+    a owl:DatatypeProperty ;
+    rdfs:label "path"@en ;
+    skos:definition "The current path of a file. A confirm policy may treat this predicate as functional."@en ;
+    rdfs:domain software:SourceFile ;
+    rdfs:range xsd:string .
+
+software:assignee
+    a owl:ObjectProperty ;
+    rdfs:label "assignee"@en ;
+    skos:definition "The current assignee of a work item. A confirm policy may treat this predicate as functional."@en ;
+    rdfs:domain work:WorkItem ;
+    rdfs:range work:Agent .
+
+software:status
+    a owl:ObjectProperty ;
+    rdfs:label "status"@en ;
+    skos:definition "The current status of a work item or change. A confirm policy may treat this predicate as functional. Callers may use a status IRI other than the four work individuals."@en ;
+    rdfs:range work:Status .

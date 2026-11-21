@@ -1,0 +1,344 @@
+@prefix memory: <http://nova.dev/memory#> .
+@prefix temporal: <http://nova.dev/temporal#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix vann: <http://purl.org/vocab/vann/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://nova.dev/memory#>
+    a owl:Ontology ;
+    rdfs:label "Agent Memory Ontology"@en ;
+    dcterms:title "Agent Memory Ontology"@en ;
+    dcterms:description "Memory-only terms for agent-memory records stored as temporal assertions."@en ;
+    dcterms:issued "2026-11-03"^^xsd:date ;
+    owl:versionIRI <http://nova.dev/memory/0.1.0> ;
+    owl:versionInfo "0.1.0" ;
+    vann:preferredNamespacePrefix "memory" ;
+    vann:preferredNamespaceUri "http://nova.dev/memory#" ;
+    rdfs:seeAlso <http://nova.dev/temporal#> ;
+    rdfs:comment "Valid time, transaction time, and supersession are temporal:validFrom, temporal:validUntil, temporal:validAt, temporal:recordedFrom, temporal:recordedUntil, temporal:recordedSequence, temporal:recordedUntilSequence, and temporal:supersedes. This vocabulary does not declare a second interval. The graph a proposition is about is temporal:scopeGraph. A proposition with no named domain graph uses temporal:DefaultGraph. Beliefs and proposals use the caller's domain graph. Episodes and procedures use temporal:DefaultGraph."@en ;
+    rdfs:comment "A memory record is a temporal:TemporalAssertion that also carries memory:kind. A later record is a new resource. It points at the closed record with temporal:supersedes and names the clock it closes with memory:closes. A world change closes memory:ValidTime. Transaction time may be a native commit sequence instead of temporal:recordedFrom. The RDF form of that sequence is temporal:recordedSequence and temporal:recordedUntilSequence. A memory record must not carry temporal:validAt."@en ;
+    skos:editorialNote "Alignments are rdfs:subPropertyOf only: memory:agent to prov:wasAttributedTo and dcterms:creator, and memory:evidence to dcterms:references and prov:wasInfluencedBy. memory:TemporalAssertion is a subclass of prov:Entity and of temporal:TemporalAssertion. This file does not import PROV, Dublin Core, or OWL-Time, and it declares no owl:equivalentProperty."@en ;
+    skos:editorialNote "temporal:supersedes is not a revised version of a record: a retraction closes a record. memory:lexical is not dcterms:description. memory:owner is not dcterms:creator or prov:wasAttributedTo. memory:policy is not dcterms:conformsTo and not prov:hadPlan. memory:session is not prov:wasGeneratedBy."@en ;
+    skos:editorialNote "OWL-Time can be derived from the endpoint literals. Instant nodes are not stored. rdf:reifies is RDF 1.2, and some stores do not implement it yet. This vocabulary defines no other reification predicate."@en ;
+    skos:editorialNote "A policy resource may be typed prov:Plan. This vocabulary does not require that type. memory:Session is not a prov:Activity. Kinds are objects of memory:kind. They are not a SKOS hierarchy and not subclasses of prov:Entity."@en ;
+    skos:editorialNote "rdf:langString stays in memory:Prose so a text literal may carry a language tag. rdf:langString is outside the OWL 2 DL datatype map, so an OWL 2 DL reasoner may reject memory:Prose."@en .
+
+memory:factReading
+    a owl:AnnotationProperty ;
+    rdfs:label "fact reading"@en ;
+    rdfs:comment "A human-readable sentence pattern. Documentation only. It is not stored on a record and does not enforce a rule."@en .
+
+memory:Prose
+    a rdfs:Datatype ;
+    owl:unionOf ( xsd:string rdf:langString ) ;
+    rdfs:label "prose"@en ;
+    skos:definition "A plain string or a language-tagged string."@en .
+
+memory:TemporalAssertion
+    a owl:Class ;
+    rdfs:subClassOf prov:Entity , temporal:TemporalAssertion ;
+    rdfs:label "Temporal assertion"@en ;
+    skos:definition "One memory record: a temporal assertion plus the memory-only terms."@en ;
+    rdfs:seeAlso rdf:reifies , temporal:TemporalAssertion ;
+    memory:factReading "A memory record is a temporal assertion."@en ;
+    rdfs:comment "The stored rdf:type is temporal:TemporalAssertion. memory:kind is what makes that assertion a memory record. memory:TemporalAssertion is that class. Episode, Belief, Retraction, Procedure, and Proposal are not classes of the record. A memory record is an interval: it has temporal:validFrom. It must not carry temporal:validAt together with temporal:validFrom, and it must not be instant-only. temporal:validAt remains available on a temporal assertion that is a single instant."@en ;
+    rdfs:comment "rdf:reifies links the record to one triple term. That predicate is RDF 1.2, and some stores do not implement it yet. Valid time is temporal:validFrom and temporal:validUntil. Transaction time is temporal:recordedFrom when the store has a datetime; a native commit sequence satisfies it when the literal is absent. temporal:recordedSequence is the RDF form of that sequence for export. An in-process write may omit it when the log already stores the sequence."@en .
+
+memory:Clock
+    a owl:Class ;
+    rdfs:label "Clock"@en ;
+    skos:definition "One of the two time coordinates a superseding record can close."@en .
+
+memory:ValidTime
+    a memory:Clock , owl:NamedIndividual ;
+    rdfs:label "Valid time"@en ;
+    skos:definition "The clock of when a statement holds in the world."@en .
+
+memory:RecordedTime
+    a memory:Clock , owl:NamedIndividual ;
+    rdfs:label "Recorded time"@en ;
+    skos:definition "The clock of when the system held a record."@en .
+
+memory:closes
+    a owl:ObjectProperty ;
+    rdfs:label "closes"@en ;
+    skos:definition "The clock or clocks a superseding record closes."@en ;
+    memory:factReading "A memory record closes Clock."@en ;
+    rdfs:comment "A memory record with temporal:supersedes must name the clock or clocks it closes. Domain temporal records do not carry memory:closes. An ordinary supersession still closes valid time: it is a world change. The closed end is temporal:validUntil on the earlier record, or it is derived from the successor's temporal:validFrom. A domain record that supersedes a memory record and carries no memory:closes is still a world change: it closes valid time, and it is not rejected. A world change closes memory:ValidTime. A correction that closes recorded time is signaled only by memory:closes memory:RecordedTime. Domain records do not have that marker, so they cannot mean the earlier statement was a mistake. Both clocks are allowed when a memory record closes both. A retraction still must supersede and still must close at least one clock. An asserted temporal:validUntil or temporal:recordedUntil on the earlier record, if present, must agree with memory:closes. The shapes do not check that agreement, because the end is on the other record. This marker is how a store derives which end to close. memory:closes is only legal on a memory record."@en ;
+    rdfs:domain memory:TemporalAssertion ;
+    rdfs:range memory:Clock .
+
+memory:kind
+    a owl:ObjectProperty ;
+    rdfs:label "kind"@en ;
+    skos:definition "The flat kind of a memory record."@en ;
+    memory:factReading "A memory record has kind Kind."@en ;
+    rdfs:comment "The object is one of the five concepts in memory:KindScheme."@en ;
+    rdfs:domain memory:TemporalAssertion ;
+    rdfs:range skos:Concept .
+
+memory:owner
+    a owl:ObjectProperty ;
+    rdfs:label "owner"@en ;
+    skos:definition "The credential partition that holds the memory record."@en ;
+    memory:factReading "A memory record has owner Partition."@en ;
+    rdfs:comment "The owner is the partition, not the acting party."@en ;
+    rdfs:domain memory:TemporalAssertion .
+
+memory:agent
+    a owl:ObjectProperty ;
+    rdfs:subPropertyOf prov:wasAttributedTo , dcterms:creator ;
+    rdfs:label "agent"@en ;
+    skos:definition "The optional acting party for a memory record."@en ;
+    memory:factReading "A memory record has agent Agent."@en ;
+    rdfs:comment "When the agent is absent, that absence is part of the record's exact identity. The agent is not the owner."@en ;
+    rdfs:domain memory:TemporalAssertion ;
+    rdfs:range prov:Agent .
+
+memory:Session
+    a owl:Class ;
+    rdfs:label "Session"@en ;
+    skos:definition "An identity partition for a memory record."@en ;
+    rdfs:comment "A session is not a prov:Activity. Generation time is not valid time."@en .
+
+memory:session
+    a owl:ObjectProperty ;
+    rdfs:label "session"@en ;
+    skos:definition "The optional session partition of a memory record."@en ;
+    memory:factReading "A memory record has session Session."@en ;
+    rdfs:comment "When the session is absent, that absence is part of exact identity. A shared read does not treat a missing session as a filter."@en ;
+    rdfs:domain memory:TemporalAssertion ;
+    rdfs:range memory:Session .
+
+memory:application
+    a owl:DatatypeProperty ;
+    rdfs:label "application"@en ;
+    skos:definition "The optional harness that wrote a memory record."@en ;
+    memory:factReading "A memory record has application Name."@en ;
+    rdfs:comment "The name of the harness that produced the write, such as Cursor, Claude Code, or Codex. It is not a scope partition. When the name is absent, the predicate is omitted."@en ;
+    rdfs:domain memory:TemporalAssertion ;
+    rdfs:range xsd:string .
+
+memory:model
+    a owl:DatatypeProperty ;
+    rdfs:label "model"@en ;
+    skos:definition "The optional writer model that produced a memory record."@en ;
+    memory:factReading "A memory record has model Name."@en ;
+    rdfs:comment "The name of the model that wrote the record. It is not the embedding index and not a scope partition. When the name is absent, the predicate is omitted."@en ;
+    rdfs:domain memory:TemporalAssertion ;
+    rdfs:range xsd:string .
+
+memory:evidence
+    a owl:ObjectProperty ;
+    rdfs:subPropertyOf dcterms:references , prov:wasInfluencedBy ;
+    rdfs:label "evidence"@en ;
+    skos:definition "An episode record a belief, procedure, or proposal cites."@en ;
+    memory:factReading "A memory record cites evidence Episode."@en ;
+    rdfs:comment "A belief may cite several episodes. Each object is an episode record, not the memory:Episode kind. A write rejects an evidence IRI that is not an episode visible to the caller."@en ;
+    rdfs:domain memory:TemporalAssertion ;
+    rdfs:range memory:TemporalAssertion .
+
+memory:role
+    a owl:ObjectProperty ;
+    rdfs:label "role"@en ;
+    skos:definition "Who spoke in an episode."@en ;
+    memory:factReading "An episode has role Role."@en ;
+    rdfs:comment "The object is User, Assistant, or Tool. Decision is content, not a role."@en ;
+    rdfs:domain memory:TemporalAssertion ;
+    rdfs:range skos:Concept .
+
+memory:episodeType
+    a owl:ObjectProperty ;
+    rdfs:label "episode type"@en ;
+    skos:definition "What an episode contains."@en ;
+    memory:factReading "An episode has episode type Type."@en ;
+    rdfs:comment "The object is a concept in memory:EpisodeTypeScheme. Decision describes the content."@en ;
+    rdfs:domain memory:TemporalAssertion ;
+    rdfs:range skos:Concept .
+
+memory:lexical
+    a owl:DatatypeProperty ;
+    rdfs:label "lexical"@en ;
+    skos:definition "The text string used for recall."@en ;
+    memory:factReading "A memory record has lexical text Text."@en ;
+    rdfs:comment "An episode uses its text, a belief uses its rendered words, and a procedure uses its workflow text. A retraction omits it."@en ;
+    rdfs:domain memory:TemporalAssertion ;
+    rdfs:range memory:Prose .
+
+memory:text
+    a owl:DatatypeProperty ;
+    rdfs:label "text"@en ;
+    skos:definition "The predicate of an episode's reified proposition."@en ;
+    memory:factReading "An episode node has text Text."@en ;
+    rdfs:comment "The reified triple uses an episode subject, this predicate, and a prose object. The subject is not the assertion reifier."@en ;
+    rdfs:range memory:Prose .
+
+memory:procedure
+    a owl:DatatypeProperty ;
+    rdfs:label "procedure"@en ;
+    skos:definition "The predicate of a procedure's reified proposition."@en ;
+    memory:factReading "A procedure name has procedure text Text."@en ;
+    rdfs:comment "This predicate is not the memory:Procedure kind. A later procedure with the same name in the same exact scope supersedes the earlier one."@en ;
+    rdfs:range memory:Prose .
+
+memory:pinned
+    a owl:DatatypeProperty ;
+    rdfs:label "pinned"@en ;
+    skos:definition "Marks a record that ranked recall returns before unpinned records."@en ;
+    memory:factReading "A memory record is pinned Boolean."@en ;
+    rdfs:comment "The xsd:boolean true is present when a row is pinned. Otherwise the predicate is omitted."@en ;
+    rdfs:domain memory:TemporalAssertion ;
+    rdfs:range xsd:boolean .
+
+memory:Policy
+    a owl:Class ;
+    rdfs:label "Policy"@en ;
+    skos:definition "A versioned policy resource that can authorize a functional replacement."@en ;
+    rdfs:comment "A policy resource carries memory:name and memory:version. It may be typed prov:Plan. This vocabulary does not require that type."@en .
+
+memory:name
+    a owl:DatatypeProperty ;
+    rdfs:label "name"@en ;
+    skos:definition "The name of a policy resource."@en ;
+    memory:factReading "A policy has name Name."@en ;
+    rdfs:domain memory:Policy ;
+    rdfs:range xsd:string .
+
+memory:version
+    a owl:DatatypeProperty ;
+    rdfs:label "version"@en ;
+    skos:definition "The version of a policy resource."@en ;
+    memory:factReading "A policy has version Version."@en ;
+    rdfs:domain memory:Policy ;
+    rdfs:range xsd:string .
+
+memory:policy
+    a owl:ObjectProperty ;
+    rdfs:label "policy"@en ;
+    skos:definition "The policy that authorized a functional replacement."@en ;
+    memory:factReading "A memory record has policy Policy."@en ;
+    rdfs:comment "The object identifies a policy, not the acting party. A functional predicate closes every open belief with the same owner, agent, session, subject, predicate, and domain graph."@en ;
+    rdfs:domain memory:TemporalAssertion ;
+    rdfs:range memory:Policy .
+
+memory:confidence
+    a owl:DatatypeProperty ;
+    rdfs:label "confidence"@en ;
+    skos:definition "An optional score on a belief, from 0 to 1."@en ;
+    memory:factReading "A belief has confidence Score."@en ;
+    rdfs:comment "Optional, and only on a belief. The scale is 0 to 1 inclusive. Writers emit xsd:decimal or xsd:integer. An xsd:double such as 5e-1 is not accepted. Not required. Not a probability axiom."@en ;
+    rdfs:domain memory:TemporalAssertion ;
+    rdfs:range [
+        a rdfs:Datatype ;
+        owl:unionOf ( xsd:decimal xsd:integer )
+    ] .
+
+memory:KindScheme
+    a skos:ConceptScheme ;
+    rdfs:label "Memory kind"@en ;
+    skos:prefLabel "Memory kind"@en ;
+    skos:definition "The flat set of five memory record kinds."@en ;
+    rdfs:comment "No kind is broader than another. Current valid time means temporal:validFrom is at or before now, and there is no temporal:validUntil or now is before that end. A future temporal:validFrom is not current. When a record has both temporal:recordedFrom and temporal:recordedSequence, they are two spellings of one transaction interval and must agree. In a store with a commit log, the sequence decides what is current: recorded at or before the head commit, and not closed by a later commit. temporal:recordedFrom decides what is current only when no sequence is present. Current recall returns episodes, beliefs, and procedures that are current. It omits retractions and proposals."@en ;
+    skos:hasTopConcept memory:Episode , memory:Belief , memory:Retraction , memory:Procedure , memory:Proposal .
+
+memory:Episode
+    a skos:Concept ;
+    skos:inScheme memory:KindScheme ;
+    skos:topConceptOf memory:KindScheme ;
+    rdfs:label "Episode"@en ;
+    skos:prefLabel "Episode"@en ;
+    skos:definition "A captured turn or note, reified with memory:text."@en ;
+    rdfs:comment "An optional memory:role says who spoke. An optional memory:episodeType says what it contains."@en .
+
+memory:Belief
+    a skos:Concept ;
+    skos:inScheme memory:KindScheme ;
+    skos:topConceptOf memory:KindScheme ;
+    rdfs:label "Belief"@en ;
+    skos:prefLabel "Belief"@en ;
+    skos:definition "A domain triple held as a temporal assertion about a scope graph."@en ;
+    rdfs:comment "memory:evidence cites one or more episodes. A functional replacement closes the previous open belief by temporal:supersedes and memory:closes memory:ValidTime."@en .
+
+memory:Retraction
+    a skos:Concept ;
+    skos:inScheme memory:KindScheme ;
+    skos:topConceptOf memory:KindScheme ;
+    rdfs:label "Retraction"@en ;
+    skos:prefLabel "Retraction"@en ;
+    skos:definition "A new record that supersedes an earlier memory record."@en ;
+    rdfs:comment "The record reifies the triple being retracted. It uses temporal:supersedes to point at the record it closes. memory:closes says which clock it closes, even when the store derives an end from the newer record's start. An asserted end on that earlier record, if present, must agree with memory:closes. Current recall omits it. A retraction has no memory:lexical."@en .
+
+memory:Procedure
+    a skos:Concept ;
+    skos:inScheme memory:KindScheme ;
+    skos:topConceptOf memory:KindScheme ;
+    rdfs:label "Procedure"@en ;
+    skos:prefLabel "Procedure"@en ;
+    skos:definition "A versioned workflow whose reified predicate is memory:procedure."@en ;
+    rdfs:comment "This concept is not the memory:procedure predicate."@en .
+
+memory:Proposal
+    a skos:Concept ;
+    skos:inScheme memory:KindScheme ;
+    skos:topConceptOf memory:KindScheme ;
+    rdfs:label "Proposal"@en ;
+    skos:prefLabel "Proposal"@en ;
+    skos:definition "A belief-shaped record that recall hides until it is confirmed."@en ;
+    rdfs:comment "Confirmation writes a belief that cites the proposal's evidence, then supersedes the proposal and closes memory:ValidTime."@en .
+
+memory:RoleScheme
+    a skos:ConceptScheme ;
+    rdfs:label "Memory role"@en ;
+    skos:prefLabel "Memory role"@en ;
+    skos:definition "The flat set of three speakers."@en ;
+    rdfs:comment "No role is broader than another. Roles stay objects of memory:role."@en ;
+    skos:hasTopConcept memory:User , memory:Assistant , memory:Tool .
+
+memory:User
+    a skos:Concept ;
+    skos:inScheme memory:RoleScheme ;
+    skos:topConceptOf memory:RoleScheme ;
+    rdfs:label "User"@en ;
+    skos:prefLabel "User"@en ;
+    skos:definition "A person speaking in a captured episode."@en ;
+    rdfs:comment "Object of memory:role."@en .
+
+memory:Assistant
+    a skos:Concept ;
+    skos:inScheme memory:RoleScheme ;
+    skos:topConceptOf memory:RoleScheme ;
+    rdfs:label "Assistant"@en ;
+    skos:prefLabel "Assistant"@en ;
+    skos:definition "The assistant's turn in a captured episode."@en ;
+    rdfs:comment "Object of memory:role."@en .
+
+memory:Tool
+    a skos:Concept ;
+    skos:inScheme memory:RoleScheme ;
+    skos:topConceptOf memory:RoleScheme ;
+    rdfs:label "Tool"@en ;
+    skos:prefLabel "Tool"@en ;
+    skos:definition "A tool result captured as an episode."@en ;
+    rdfs:comment "Object of memory:role."@en .
+
+memory:EpisodeTypeScheme
+    a skos:ConceptScheme ;
+    rdfs:label "Episode type"@en ;
+    skos:prefLabel "Episode type"@en ;
+    skos:definition "What an episode contains."@en ;
+    rdfs:comment "Decision is content. It is not a speaker role and not a record kind."@en ;
+    skos:hasTopConcept memory:Decision .
+
+memory:Decision
+    a skos:Concept ;
+    skos:inScheme memory:EpisodeTypeScheme ;
+    skos:topConceptOf memory:EpisodeTypeScheme ;
+    rdfs:label "Decision"@en ;
+    skos:prefLabel "Decision"@en ;
+    skos:definition "An episode whose content is a decision."@en ;
+    rdfs:comment "Object of memory:episodeType. Not an object of memory:role, and not a sixth record kind."@en .

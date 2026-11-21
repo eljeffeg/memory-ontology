@@ -1,0 +1,185 @@
+@prefix temporal: <http://nova.dev/temporal#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+temporal:TemporalAssertionShape
+    a sh:NodeShape ;
+    sh:targetClass temporal:TemporalAssertion ;
+    rdfs:label "Temporal assertion shape"@en ;
+    rdfs:comment "Applies to a temporal assertion, including a memory record stored as temporal:TemporalAssertion. Memory-only rules live in the memory shapes and target subjects of memory:kind. This shape is not pulled in with sh:node."@en ;
+    rdfs:comment "SHACL core cannot require the object of rdf:reifies to be an RDF 1.2 triple term. SHACL 1.2 node-kind for triple terms is not used here."@en ;
+    rdfs:comment "temporal:recordedSequence and temporal:recordedUntilSequence are optional. An in-process write may keep the commit sequence in the transaction log and omit them. An RDF export of a store whose transaction time is a commit sequence must include the integers."@en ;
+    sh:property [
+        sh:path rdf:reifies ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "A temporal assertion reifies one triple."@en ;
+    ] ;
+    sh:property [
+        sh:path temporal:validFrom ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTimeStamp ;
+        sh:message "validFrom is one xsd:dateTimeStamp."@en ;
+    ] ;
+    sh:property [
+        sh:path temporal:validFrom ;
+        sh:lessThan temporal:validUntil ;
+        sh:message "The valid-time end must be after the valid-time start."@en ;
+        rdfs:comment "Interval order is only trustworthy in a validator that implements xsd:dateTimeStamp, including timezone offsets and lexical rejection. Some SHACL stacks do not. The store must also reject an end that is not after its start, and a timestamp that is not a valid dateTimeStamp."@en ;
+    ] ;
+    sh:property [
+        sh:path temporal:validUntil ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTimeStamp ;
+        sh:message "validUntil is an xsd:dateTimeStamp."@en ;
+    ] ;
+    sh:property [
+        sh:path temporal:validAt ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTimeStamp ;
+        sh:message "validAt is one xsd:dateTimeStamp."@en ;
+    ] ;
+    sh:xone (
+        [
+            sh:property [
+                sh:path temporal:validAt ;
+                sh:maxCount 0 ;
+            ] ;
+            sh:or (
+                [ sh:property [ sh:path temporal:validFrom ; sh:minCount 1 ] ]
+                [ sh:property [ sh:path temporal:validUntil ; sh:minCount 1 ] ]
+            )
+        ]
+        [
+            sh:property [
+                sh:path temporal:validAt ;
+                sh:minCount 1 ;
+            ] ;
+            sh:property [
+                sh:path temporal:validFrom ;
+                sh:maxCount 0 ;
+            ] ;
+            sh:property [
+                sh:path temporal:validUntil ;
+                sh:maxCount 0 ;
+            ]
+        ]
+        [
+            sh:property [
+                sh:path temporal:validFrom ;
+                sh:maxCount 0 ;
+            ] ;
+            sh:property [
+                sh:path temporal:validUntil ;
+                sh:maxCount 0 ;
+            ] ;
+            sh:property [
+                sh:path temporal:validAt ;
+                sh:maxCount 0 ;
+            ]
+        ]
+    ) ;
+    sh:message "A temporal assertion is an interval or an instant, not both. temporal:validAt must not appear with temporal:validFrom or temporal:validUntil. An assertion with neither is unbounded."@en ;
+    sh:property [
+        sh:path temporal:recordedFrom ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTimeStamp ;
+        sh:message "recordedFrom is an optional xsd:dateTimeStamp."@en ;
+    ] ;
+    sh:property [
+        sh:path temporal:recordedFrom ;
+        sh:lessThan temporal:recordedUntil ;
+        sh:message "The recorded-time end must be after the recorded-time start."@en ;
+        rdfs:comment "Interval order is only trustworthy in a validator that implements xsd:dateTimeStamp, including timezone offsets and lexical rejection. Some SHACL stacks do not. The store must also reject an end that is not after its start, and a timestamp that is not a valid dateTimeStamp."@en ;
+    ] ;
+    sh:property [
+        sh:path temporal:recordedUntil ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTimeStamp ;
+        sh:message "recordedUntil is an xsd:dateTimeStamp."@en ;
+    ] ;
+    sh:property [
+        sh:path temporal:recordedSequence ;
+        sh:maxCount 1 ;
+        sh:or (
+            [
+                sh:datatype xsd:integer ;
+                sh:minInclusive 0 ;
+            ]
+            [
+                sh:datatype xsd:nonNegativeInteger ;
+                sh:minInclusive 0 ;
+            ]
+        ) ;
+        sh:message "recordedSequence is an optional integer >= 0, as xsd:integer or xsd:nonNegativeInteger."@en ;
+        rdfs:comment "A bare integer and xsd:nonNegativeInteger are accepted when they are >= 0. Other integer subtypes, such as xsd:long, are not. Exporters should write xsd:integer. A negative value fails. Not required on an in-process write."@en ;
+    ] ;
+    sh:property [
+        sh:path temporal:recordedSequence ;
+        sh:lessThan temporal:recordedUntilSequence ;
+        sh:message "The recorded-sequence end must be after the recorded-sequence start."@en ;
+        rdfs:comment "A reversed range fails this comparison. Integer order does not use the dateTimeStamp caveat."@en ;
+    ] ;
+    sh:property [
+        sh:path temporal:recordedUntilSequence ;
+        sh:maxCount 1 ;
+        sh:or (
+            [
+                sh:datatype xsd:integer ;
+                sh:minInclusive 0 ;
+            ]
+            [
+                sh:datatype xsd:nonNegativeInteger ;
+                sh:minInclusive 0 ;
+            ]
+        ) ;
+        sh:message "recordedUntilSequence is an optional integer >= 0, as xsd:integer or xsd:nonNegativeInteger."@en ;
+        rdfs:comment "Exclusive end of the commit sequence. Omitted while the recorded interval is open. xsd:nonNegativeInteger is recommended."@en ;
+    ] ;
+    sh:property [
+        sh:path temporal:scopeGraph ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "scopeGraph is one IRI."@en ;
+    ] ;
+    sh:property [
+        sh:path temporal:supersedes ;
+        sh:class temporal:TemporalAssertion ;
+        sh:message "supersedes points at a temporal assertion."@en ;
+        rdfs:comment "This check only sees records loaded for validation, so a target stored in another graph must be included in that load."@en ;
+    ] .
+
+temporal:IntervalEndRequiresStartShape
+    a sh:NodeShape ;
+    sh:targetClass temporal:TemporalAssertion ;
+    rdfs:label "Interval end requires a start"@en ;
+    rdfs:comment "An open interval has temporal:validFrom and no temporal:validUntil. An end with no start fails."@en ;
+    sh:message "If temporal:validUntil is present, temporal:validFrom is required. An open interval has a start and no end."@en ;
+    sh:or (
+        [ sh:path temporal:validUntil ; sh:maxCount 0 ]
+        [ sh:path temporal:validFrom ; sh:minCount 1 ]
+    ) .
+
+temporal:RecordedEndRequiresStartShape
+    a sh:NodeShape ;
+    sh:targetClass temporal:TemporalAssertion ;
+    rdfs:label "Recorded end requires a start"@en ;
+    rdfs:comment "An open recorded interval has temporal:recordedFrom and no temporal:recordedUntil. An end with no start fails."@en ;
+    sh:message "If temporal:recordedUntil is present, temporal:recordedFrom is required. An open recorded interval has a start and no end."@en ;
+    sh:or (
+        [ sh:path temporal:recordedUntil ; sh:maxCount 0 ]
+        [ sh:path temporal:recordedFrom ; sh:minCount 1 ]
+    ) .
+
+temporal:SequenceEndRequiresStartShape
+    a sh:NodeShape ;
+    sh:targetClass temporal:TemporalAssertion ;
+    rdfs:label "Sequence end requires a start"@en ;
+    rdfs:comment "An open commit-sequence interval has temporal:recordedSequence and no temporal:recordedUntilSequence. An end with no start fails."@en ;
+    sh:message "If temporal:recordedUntilSequence is present, temporal:recordedSequence is required. An open interval has a start and no end."@en ;
+    sh:or (
+        [ sh:path temporal:recordedUntilSequence ; sh:maxCount 0 ]
+        [ sh:path temporal:recordedSequence ; sh:minCount 1 ]
+    ) .

@@ -1,0 +1,98 @@
+# Shapes for rows an Ask answer cites.
+# They describe answer evidence, not the domain data the answer is about.
+#
+# A cited row (nova:CitedAnswerEvidence) has an identity and the text or
+# the terms it contributes. A cited inferred triple
+# (nova:InferredAnswerEvidence) also has a derivation: the rule that
+# produced it, and any premise that derivation names.
+
+@prefix nova: <http://nova.dev/ns/answer-evidence#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+nova:CitedAnswerEvidenceShape a sh:NodeShape ;
+    sh:name "cited answer evidence" ;
+    sh:description "A row an answer cites: an identity, and the text or terms it contributes." ;
+    sh:targetClass nova:CitedAnswerEvidence ;
+    sh:property nova:AnswerEvidenceIdShape ;
+    sh:or (
+        nova:AnswerEvidenceTextShape
+        nova:AnswerEvidenceTermShape
+    ) .
+
+nova:AnswerEvidenceIdShape a sh:PropertyShape ;
+    sh:name "answer evidence identity" ;
+    sh:path nova:evidenceId ;
+    sh:datatype xsd:string ;
+    sh:minLength 1 ;
+    sh:minCount 1 ;
+    sh:maxCount 1 ;
+    sh:message "A cited answer row needs an identity." .
+
+nova:AnswerEvidenceTextShape a sh:NodeShape ;
+    sh:name "answer evidence text" ;
+    sh:property [
+        sh:path nova:text ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:minCount 1
+    ] .
+
+nova:AnswerEvidenceTermShape a sh:NodeShape ;
+    sh:name "answer evidence term" ;
+    sh:property [
+        sh:path nova:term ;
+        sh:nodeKind sh:IRIOrLiteral ;
+        sh:minCount 1
+    ] .
+
+nova:InferredAnswerEvidenceShape a sh:NodeShape ;
+    sh:name "inferred cited answer evidence" ;
+    sh:description "A cited inferred triple also carries a derivation." ;
+    sh:targetClass nova:InferredAnswerEvidence ;
+    sh:property [
+        sh:name "answer evidence derivation" ;
+        sh:path nova:derivation ;
+        sh:minCount 1 ;
+        sh:node nova:AnswerEvidenceDerivationShape ;
+        sh:message "A cited inferred triple needs a derivation."
+    ] .
+
+nova:AnswerEvidenceDerivationShape a sh:NodeShape ;
+    sh:name "answer evidence derivation" ;
+    sh:property [
+        sh:path nova:rule ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "An answer-evidence derivation names the rule that produced the triple."
+    ] ;
+    sh:property [
+        sh:path nova:premise ;
+        sh:node nova:AnswerEvidencePremiseShape
+    ] .
+
+nova:AnswerEvidencePremiseShape a sh:NodeShape ;
+    sh:name "answer evidence premise" ;
+    sh:property [
+        sh:path nova:subject ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:minCount 1 ;
+        sh:maxCount 1
+    ] ;
+    sh:property [
+        sh:path nova:predicate ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:minCount 1 ;
+        sh:maxCount 1
+    ] ;
+    sh:property [
+        sh:path nova:object ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:minCount 1 ;
+        sh:maxCount 1
+    ] .

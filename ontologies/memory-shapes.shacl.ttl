@@ -1,0 +1,222 @@
+@prefix memory: <http://nova.dev/memory#> .
+@prefix temporal: <http://nova.dev/temporal#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+memory:TemporalAssertionShape
+    a sh:NodeShape ;
+    sh:targetSubjectsOf memory:kind ;
+    rdfs:label "Temporal assertion shape"@en ;
+    rdfs:comment "This shape requires rdf:type temporal:TemporalAssertion. A memory record with no type, or typed only memory:TemporalAssertion, fails that check. A record that has the temporal type is also validated by the temporal shape: one reified triple, no temporal:validAt beside temporal:validFrom, and the recordedSequence datatype. This shape does not repeat those checks and does not sh:node them."@en ;
+    rdfs:comment "temporal:recordedFrom is optional. A native commit sequence satisfies transaction time when that literal is absent. temporal:recordedSequence is not required on an in-process write."@en ;
+    rdfs:comment "Whether memory:closes agrees with an asserted temporal:validUntil or temporal:recordedUntil on the earlier record is a store check, not a SHACL check, because that end is on the other record."@en ;
+    rdfs:comment "An absent session is part of application identity. It is not a graph constraint."@en ;
+    rdfs:comment "A record may cite several episodes. Each object is one episode record."@en ;
+    sh:property [
+        sh:path rdf:type ;
+        sh:minCount 1 ;
+        sh:hasValue temporal:TemporalAssertion ;
+        sh:message "A memory record must be a temporal:TemporalAssertion."@en ;
+    ] ;
+    sh:property [
+        sh:path temporal:validFrom ;
+        sh:minCount 1 ;
+        sh:message "A memory record is an interval and requires temporal:validFrom."@en ;
+        rdfs:comment "A memory record is an interval and requires temporal:validFrom. temporal:validAt is allowed on a temporal assertion that is a single instant. Memory excludes instant-only records."@en ;
+    ] ;
+    sh:property [
+        sh:path temporal:validAt ;
+        sh:maxCount 0 ;
+        sh:message "A memory record must not carry temporal:validAt. It is an interval with temporal:validFrom, not an instant."@en ;
+    ] ;
+    sh:property [
+        sh:path memory:kind ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in (
+            memory:Episode
+            memory:Belief
+            memory:Retraction
+            memory:Procedure
+            memory:Proposal
+        ) ;
+        sh:message "kind is one of Episode, Belief, Retraction, Procedure, or Proposal."@en ;
+    ] ;
+    sh:property [
+        sh:path memory:role ;
+        sh:maxCount 1 ;
+        sh:in ( memory:User memory:Assistant memory:Tool ) ;
+        sh:message "role is User, Assistant, or Tool."@en ;
+    ] ;
+    sh:property [
+        sh:path memory:episodeType ;
+        sh:maxCount 1 ;
+        sh:in ( memory:Decision ) ;
+        sh:message "episodeType is Decision."@en ;
+    ] ;
+    sh:property [
+        sh:path memory:evidence ;
+        sh:class temporal:TemporalAssertion ;
+        sh:node memory:EvidenceEpisodeShape ;
+        rdfs:comment "The evidence records have to be in the validation load, same caveat as supersedes."@en ;
+        sh:message "Each evidence value cites one episode record."@en ;
+    ] ;
+    sh:property [
+        sh:path memory:agent ;
+        sh:maxCount 1 ;
+        sh:class prov:Agent ;
+    ] ;
+    sh:property [
+        sh:path memory:application ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "application is an optional string."@en ;
+    ] ;
+    sh:property [
+        sh:path memory:model ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "model is an optional string."@en ;
+    ] ;
+    sh:property [
+        sh:path memory:session ;
+        sh:maxCount 1 ;
+        sh:class memory:Session ;
+    ] ;
+    sh:property [
+        sh:path memory:policy ;
+        sh:maxCount 1 ;
+        sh:class memory:Policy ;
+    ] ;
+    sh:property [
+        sh:path memory:confidence ;
+        sh:maxCount 1 ;
+        sh:or (
+            [
+                sh:datatype xsd:decimal ;
+                sh:minInclusive 0 ;
+                sh:maxInclusive 1 ;
+            ]
+            [
+                sh:datatype xsd:integer ;
+                sh:minInclusive 0 ;
+                sh:maxInclusive 1 ;
+            ]
+        ) ;
+        sh:message "confidence is an optional value from 0 to 1, as xsd:decimal or xsd:integer."@en ;
+    ] ;
+    sh:property [
+        sh:path memory:closes ;
+        sh:maxCount 2 ;
+        sh:in ( memory:ValidTime memory:RecordedTime ) ;
+        sh:message "closes is ValidTime, RecordedTime, or both."@en ;
+    ] ;
+    sh:property [
+        sh:path memory:lexical ;
+        sh:or (
+            [ sh:datatype xsd:string ]
+            [ sh:datatype rdf:langString ]
+        ) ;
+        sh:message "lexical is a string or a language-tagged string."@en ;
+    ] .
+
+memory:EvidenceEpisodeShape
+    a sh:NodeShape ;
+    rdfs:label "Evidence episode shape"@en ;
+    rdfs:comment "Applied only when memory:evidence is present. Each cited record is one episode."@en ;
+    sh:property [
+        sh:path memory:kind ;
+        sh:hasValue memory:Episode ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "The cited record has kind Episode."@en ;
+    ] .
+
+memory:RoleOnlyOnEpisodeShape
+    a sh:NodeShape ;
+    sh:targetSubjectsOf memory:kind ;
+    rdfs:label "Role only on an episode"@en ;
+    sh:message "A role is allowed only on an episode."@en ;
+    sh:or (
+        [ sh:path memory:kind ; sh:hasValue memory:Episode ]
+        [ sh:path memory:role ; sh:maxCount 0 ]
+    ) .
+
+memory:EpisodeTypeOnlyOnEpisodeShape
+    a sh:NodeShape ;
+    sh:targetSubjectsOf memory:kind ;
+    rdfs:label "Episode type only on an episode"@en ;
+    sh:message "An episode type is allowed only on an episode."@en ;
+    sh:or (
+        [ sh:path memory:kind ; sh:hasValue memory:Episode ]
+        [ sh:path memory:episodeType ; sh:maxCount 0 ]
+    ) .
+
+memory:ConfidenceOnlyOnBeliefShape
+    a sh:NodeShape ;
+    sh:targetSubjectsOf memory:kind ;
+    rdfs:label "Confidence only on a belief"@en ;
+    sh:message "Confidence is allowed only on a belief."@en ;
+    sh:or (
+        [ sh:path memory:kind ; sh:hasValue memory:Belief ]
+        [ sh:path memory:confidence ; sh:maxCount 0 ]
+    ) .
+
+memory:RetractionClosesClockShape
+    a sh:NodeShape ;
+    sh:targetSubjectsOf memory:kind ;
+    rdfs:label "Retraction closes a clock"@en ;
+    rdfs:comment "Whether memory:closes agrees with an asserted temporal:validUntil or temporal:recordedUntil on the earlier record is a store check, not a SHACL check, because that end is on the other record."@en ;
+    sh:message "A retraction has memory:closes at least once."@en ;
+    sh:or (
+        [ sh:not [ sh:path memory:kind ; sh:hasValue memory:Retraction ] ]
+        [ sh:path memory:closes ; sh:minCount 1 ]
+    ) .
+
+memory:RetractionSupersedesShape
+    a sh:NodeShape ;
+    sh:targetSubjectsOf memory:kind ;
+    rdfs:label "Retraction supersedes a record"@en ;
+    sh:message "A retraction must supersede the record it closes."@en ;
+    sh:or (
+        [ sh:not [ sh:path memory:kind ; sh:hasValue memory:Retraction ] ]
+        [ sh:path temporal:supersedes ; sh:minCount 1 ]
+    ) .
+
+memory:SupersedesClosesClockShape
+    a sh:NodeShape ;
+    sh:targetSubjectsOf memory:kind ;
+    rdfs:label "Supersession names a clock"@en ;
+    rdfs:comment "A domain record is not a target. A domain record that supersedes a memory record and carries no memory:closes is a world change: it closes valid time, and this shape does not reject it."@en ;
+    sh:message "A record that supersedes another must say which clock it closes."@en ;
+    sh:or (
+        [ sh:path temporal:supersedes ; sh:maxCount 0 ]
+        [
+            sh:path memory:closes ;
+            sh:minCount 1 ;
+            sh:in ( memory:ValidTime memory:RecordedTime )
+        ]
+    ) .
+
+memory:RetractionHasNoLexicalShape
+    a sh:NodeShape ;
+    sh:targetSubjectsOf memory:kind ;
+    rdfs:label "Retraction has no lexical text"@en ;
+    sh:message "A retraction has no lexical text."@en ;
+    sh:or (
+        [ sh:not [ sh:path memory:kind ; sh:hasValue memory:Retraction ] ]
+        [ sh:path memory:lexical ; sh:maxCount 0 ]
+    ) .
+
+memory:ClosesRequiresKindShape
+    a sh:NodeShape ;
+    sh:targetSubjectsOf memory:closes ;
+    rdfs:label "Closes requires a memory record"@en ;
+    sh:property [
+        sh:path memory:kind ;
+        sh:minCount 1 ;
+        sh:message "memory:closes is only legal on a memory record. A domain record with memory:closes memory:RecordedTime is not a recorded-time correction."@en ;
+    ] .
