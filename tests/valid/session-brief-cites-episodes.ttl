@@ -1,0 +1,34 @@
+# A session brief cites the episodes it summarizes.
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix temporal: <http://nova.dev/temporal#> .
+@prefix memory: <http://nova.dev/memory#> .
+@prefix ex: <https://example.org/> .
+
+ex:episode-1 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:alice ex:said ex:release-planned )>> ;
+    memory:kind memory:Episode ;
+    memory:role memory:User ;
+    temporal:validFrom "2026-11-01T10:00:00Z"^^xsd:dateTimeStamp .
+
+ex:episode-2 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:bob ex:said ex:release-moved )>> ;
+    memory:kind memory:Episode ;
+    memory:role memory:User ;
+    temporal:validFrom "2026-11-02T10:00:00Z"^^xsd:dateTimeStamp .
+
+ex:session-brief-1 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:session-1 ex:summarizedBy ex:session-brief-text-1 )>> ;
+    memory:kind memory:SessionBrief ;
+    memory:evidence ex:episode-1 ;
+    memory:brief "Alice said the release is planned." ;
+    memory:briefTopic "release planning" ;
+    temporal:validFrom "2026-11-01T11:00:00Z"^^xsd:dateTimeStamp .
+
+ex:session-brief-2 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:session-2 ex:summarizedBy ex:session-brief-text-2 )>> ;
+    memory:kind memory:SessionBrief ;
+    memory:evidence ex:episode-2 ;
+    memory:brief "Bob said the release moved." ;
+    memory:briefTopic "release planning" ;
+    temporal:validFrom "2026-11-02T11:00:00Z"^^xsd:dateTimeStamp .
