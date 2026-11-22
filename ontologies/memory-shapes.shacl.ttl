@@ -42,8 +42,10 @@ memory:TemporalAssertionShape
             memory:Retraction
             memory:Procedure
             memory:Proposal
+            memory:SessionBrief
+            memory:TopicBrief
         ) ;
-        sh:message "kind is one of Episode, Belief, Retraction, Procedure, or Proposal."@en ;
+        sh:message "kind is one of Episode, Belief, Retraction, Procedure, Proposal, SessionBrief, or TopicBrief."@en ;
     ] ;
     sh:property [
         sh:path memory:role ;
@@ -60,9 +62,8 @@ memory:TemporalAssertionShape
     sh:property [
         sh:path memory:evidence ;
         sh:class temporal:TemporalAssertion ;
-        sh:node memory:EvidenceEpisodeShape ;
-        rdfs:comment "The evidence records have to be in the validation load, same caveat as supersedes."@en ;
-        sh:message "Each evidence value cites one episode record."@en ;
+        rdfs:comment "The evidence records have to be in the validation load, same caveat as supersedes. Which kind each cited record must have is checked by memory:EvidenceKindShape."@en ;
+        sh:message "Each evidence value is a temporal assertion."@en ;
     ] ;
     sh:property [
         sh:path memory:agent ;
@@ -123,10 +124,48 @@ memory:TemporalAssertionShape
         sh:message "lexical is a string or a language-tagged string."@en ;
     ] .
 
+memory:EvidenceKindShape
+    a sh:NodeShape ;
+    sh:targetSubjectsOf memory:evidence ;
+    rdfs:label "Evidence kind by citing kind"@en ;
+    rdfs:comment "A topic brief cites session briefs. Every other record cites episodes, so a generated brief is never evidence for a belief, procedure, proposal, or session brief."@en ;
+    sh:message "A topic brief cites session briefs. Any other record cites episodes."@en ;
+    sh:or (
+        [
+            sh:path memory:kind ;
+            sh:hasValue memory:TopicBrief ;
+        ]
+        [
+            sh:path memory:evidence ;
+            sh:node memory:EvidenceEpisodeShape ;
+        ]
+    ) ;
+    sh:or (
+        [
+            sh:not [ sh:path memory:kind ; sh:hasValue memory:TopicBrief ] ;
+        ]
+        [
+            sh:path memory:evidence ;
+            sh:node memory:EvidenceSessionBriefShape ;
+        ]
+    ) .
+
+memory:EvidenceSessionBriefShape
+    a sh:NodeShape ;
+    rdfs:label "Evidence session brief shape"@en ;
+    rdfs:comment "Applied to the evidence of a topic brief. Each cited record is one session brief."@en ;
+    sh:property [
+        sh:path memory:kind ;
+        sh:hasValue memory:SessionBrief ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "The cited record has kind SessionBrief."@en ;
+    ] .
+
 memory:EvidenceEpisodeShape
     a sh:NodeShape ;
     rdfs:label "Evidence episode shape"@en ;
-    rdfs:comment "Applied only when memory:evidence is present. Each cited record is one episode."@en ;
+    rdfs:comment "Applied to the evidence of every record that is not a topic brief. Each cited record is one episode."@en ;
     sh:property [
         sh:path memory:kind ;
         sh:hasValue memory:Episode ;
@@ -219,4 +258,37 @@ memory:ClosesRequiresKindShape
         sh:path memory:kind ;
         sh:minCount 1 ;
         sh:message "memory:closes is only legal on a memory record. A domain record with memory:closes memory:RecordedTime is not a recorded-time correction."@en ;
+    ] .
+
+memory:BriefOnlyOnBriefShape
+    a sh:NodeShape ;
+    sh:targetSubjectsOf memory:brief ;
+    rdfs:label "Brief text only on a brief"@en ;
+    sh:property [
+        sh:path memory:kind ;
+        sh:minCount 1 ;
+        sh:in ( memory:SessionBrief memory:TopicBrief ) ;
+        sh:message "memory:brief is allowed only on a session brief or a topic brief."@en ;
+    ] ;
+    sh:property [
+        sh:path memory:brief ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:message "A brief has at most one memory:brief, as a string."@en ;
+    ] .
+
+memory:BriefTopicOnlyOnBriefShape
+    a sh:NodeShape ;
+    sh:targetSubjectsOf memory:briefTopic ;
+    rdfs:label "Brief topic only on a brief"@en ;
+    sh:property [
+        sh:path memory:kind ;
+        sh:minCount 1 ;
+        sh:in ( memory:SessionBrief memory:TopicBrief ) ;
+        sh:message "memory:briefTopic is allowed only on a session brief or a topic brief."@en ;
+    ] ;
+    sh:property [
+        sh:path memory:briefTopic ;
+        sh:datatype xsd:string ;
+        sh:message "memory:briefTopic is a string."@en ;
     ] .
