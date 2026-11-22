@@ -6,15 +6,15 @@ These RDF vocabularies and SHACL shapes describe temporal assertions, agent memo
 
 | File | Purpose | Namespace |
 | --- | --- | --- |
-| [temporal.ttl](temporal.ttl) | Valid time, recorded time, graph scope, and supersession for an assertion. | `http://nova.dev/temporal#` |
-| [temporal-shapes.shacl.ttl](temporal-shapes.shacl.ttl) | SHACL constraints for temporal assertions. | `http://nova.dev/temporal#` |
-| [memory.ttl](memory.ttl) | Memory-specific terms for episodes, beliefs, procedures, proposals, and retractions. Uses the shared temporal vocabulary. | `http://nova.dev/memory#` |
-| [memory-shapes.shacl.ttl](memory-shapes.shacl.ttl) | SHACL constraints for memory records and their relationships. | `http://nova.dev/memory#` |
-| [work.ttl](work.ttl) | General vocabulary for agents, artifacts, work items, changes, and topics. | `http://nova.dev/work#` |
-| [software.ttl](software.ttl) | Software-specific terms, including repositories, source files, issues, commits, and dependencies. Builds on the work vocabulary. | `http://nova.dev/software#` |
-| [answer-evidence-shapes.ttl](answer-evidence-shapes.ttl) | SHACL constraints for cited answer evidence and inferred-evidence derivations, not for the underlying domain data. | `http://nova.dev/ns/answer-evidence#` |
+| [temporal.ttl](ontologies/temporal.ttl) | Valid time, recorded time, graph scope, and supersession for an assertion. | `http://nova.dev/temporal#` |
+| [temporal-shapes.shacl.ttl](ontologies/temporal-shapes.shacl.ttl) | SHACL constraints for temporal assertions. | `http://nova.dev/temporal#` |
+| [memory.ttl](ontologies/memory.ttl) | Memory-specific terms for episodes, beliefs, procedures, proposals, retractions, and generated session and topic briefs. Uses the shared temporal vocabulary. | `http://nova.dev/memory#` |
+| [memory-shapes.shacl.ttl](ontologies/memory-shapes.shacl.ttl) | SHACL constraints for memory records and their relationships. | `http://nova.dev/memory#` |
+| [work.ttl](ontologies/work.ttl) | General vocabulary for agents, artifacts, work items, changes, and topics. | `http://nova.dev/work#` |
+| [software.ttl](ontologies/software.ttl) | Software-specific terms, including repositories, source files, issues, commits, and dependencies. Builds on the work vocabulary. | `http://nova.dev/software#` |
+| [answer-evidence-shapes.ttl](ontologies/answer-evidence-shapes.ttl) | SHACL constraints for cited answer evidence and inferred-evidence derivations, not for the underlying domain data. | `http://nova.dev/ns/answer-evidence#` |
 
-The four ontology files declare version `0.1.0` and include labels, definitions, and further modeling notes. The namespace IRIs identify vocabulary terms; they are not a guarantee that an ontology can be downloaded from those addresses.
+The four ontology files include labels, definitions, and further modeling notes. `temporal.ttl` and `memory.ttl` declare version `0.1.0`; `work.ttl` and `software.ttl` declare `0.2.0`. The namespace IRIs identify vocabulary terms; they are not a guarantee that an ontology can be downloaded from those addresses.
 
 ## Getting started
 
@@ -48,3 +48,5 @@ Memory records add memory:kind and other memory-specific properties to temporal 
 Load `temporal-shapes.shacl.ttl` to check temporal assertions. To check memory records, load **both** temporal and memory shape files: the memory shapes do not invoke the temporal shapes automatically. Include referenced records in the validation data when checking relationships such as evidence and supersession. The answer-evidence shapes are a separate validation set.
 
 SHACL validation is not a substitute for all application checks. For example, the temporal shapes cannot require the object of `rdf:reifies` to be a triple term, and timestamp comparisons depend on validator support for `xsd:dateTimeStamp`. Nova does not run the temporal and memory shapes on its memory write path. See the comments in each shape file for further limits.
+
+`tests/run.sh` checks the temporal and memory shapes against the fixtures in `tests/valid` (must conform) and `tests/invalid` (must fail with the messages each file lists). It needs Apache Jena on `PATH`, or `JENA_HOME` set, from a release that reads RDF 1.2 triple terms (tested with 6.3.0 on Java 21).
