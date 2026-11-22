@@ -137,9 +137,9 @@ memory:evidence
     a owl:ObjectProperty ;
     rdfs:subPropertyOf dcterms:references , prov:wasInfluencedBy ;
     rdfs:label "evidence"@en ;
-    skos:definition "An episode record a belief, procedure, or proposal cites."@en ;
-    memory:factReading "A memory record cites evidence Episode."@en ;
-    rdfs:comment "A belief may cite several episodes. Each object is an episode record, not the memory:Episode kind. A write rejects an evidence IRI that is not an episode visible to the caller."@en ;
+    skos:definition "A source record cited by another memory record."@en ;
+    memory:factReading "A memory record cites a source record."@en ;
+    rdfs:comment "Beliefs, procedures, proposals, and session briefs cite episode records. Topic briefs cite particular session brief versions. Generated briefs are not evidence for claims."@en ;
     rdfs:domain memory:TemporalAssertion ;
     rdfs:range memory:TemporalAssertion .
 
@@ -242,9 +242,9 @@ memory:KindScheme
     a skos:ConceptScheme ;
     rdfs:label "Memory kind"@en ;
     skos:prefLabel "Memory kind"@en ;
-    skos:definition "The flat set of five memory record kinds."@en ;
-    rdfs:comment "No kind is broader than another. Current valid time means temporal:validFrom is at or before now, and there is no temporal:validUntil or now is before that end. A future temporal:validFrom is not current. When a record has both temporal:recordedFrom and temporal:recordedSequence, they are two spellings of one transaction interval and must agree. In a store with a commit log, the sequence decides what is current: recorded at or before the head commit, and not closed by a later commit. temporal:recordedFrom decides what is current only when no sequence is present. Current recall returns episodes, beliefs, and procedures that are current. It omits retractions and proposals."@en ;
-    skos:hasTopConcept memory:Episode , memory:Belief , memory:Retraction , memory:Procedure , memory:Proposal .
+    skos:definition "The flat set of memory record kinds."@en ;
+    rdfs:comment "No kind is broader than another. Current valid time means temporal:validFrom is at or before now, and there is no temporal:validUntil or now is before that end. A future temporal:validFrom is not current. When a record has both temporal:recordedFrom and temporal:recordedSequence, they are two spellings of one transaction interval and must agree. In a store with a commit log, the sequence decides what is current: recorded at or before the head commit, and not closed by a later commit. temporal:recordedFrom decides what is current only when no sequence is present. Current recall returns episodes, beliefs, and procedures that are current. It omits retractions, proposals, and generated briefs."@en ;
+    skos:hasTopConcept memory:Episode , memory:Belief , memory:Retraction , memory:Procedure , memory:Proposal , memory:SessionBrief , memory:TopicBrief .
 
 memory:Episode
     a skos:Concept ;
@@ -342,3 +342,23 @@ memory:Decision
     skos:prefLabel "Decision"@en ;
     skos:definition "An episode whose content is a decision."@en ;
     rdfs:comment "Object of memory:episodeType. Not an object of memory:role, and not a sixth record kind."@en .
+
+# Typed generated documents; narrative and provenance are stored separately.
+memory:SessionBrief a skos:Concept ;
+    skos:inScheme memory:KindScheme ;
+    skos:topConceptOf memory:KindScheme ;
+    rdfs:label "Session brief"@en .
+
+memory:TopicBrief a skos:Concept ;
+    skos:inScheme memory:KindScheme ;
+    skos:topConceptOf memory:KindScheme ;
+    rdfs:label "Topic brief"@en .
+
+memory:brief a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    skos:definition "Generated Markdown for a session or topic brief, distinguished by memory:kind on the assertion."@en .
+
+memory:briefTopic a owl:DatatypeProperty ;
+    rdfs:domain memory:TemporalAssertion ;
+    rdfs:range xsd:string ;
+    skos:definition "A normalized suggested topic label on a generated brief, not a verified entity or claim."@en .

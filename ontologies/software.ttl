@@ -17,8 +17,8 @@
     dcterms:title "Software Work Ontology"@en ;
     dcterms:description "Software classes under the work vocabulary. Repositories align to DOAP. Code structure is recognized, not imported."@en ;
     dcterms:issued "2026-11-04"^^xsd:date ;
-    owl:versionIRI <http://nova.dev/software/0.1.0> ;
-    owl:versionInfo "0.1.0" ;
+    owl:versionIRI <http://nova.dev/software/0.2.0> ;
+    owl:versionInfo "0.2.0" ;
     vann:preferredNamespacePrefix "software" ;
     vann:preferredNamespaceUri "http://nova.dev/software#" ;
     rdfs:seeAlso work: , doap: , woc: , schema:SoftwareSourceCode , <https://codemeta.github.io/> ;
@@ -30,13 +30,13 @@
 
 software:Repository
     a owl:Class ;
-    rdfs:subClassOf work:Artifact , doap:Project ;
+    rdfs:subClassOf work:Artifact , work:Project , doap:Project ;
     rdfs:label "Repository"@en ;
     skos:definition "A source repository. It is a DOAP project, not a build project."@en .
 
 software:SourceFile
     a owl:Class ;
-    rdfs:subClassOf work:Artifact ;
+    rdfs:subClassOf work:Document ;
     rdfs:label "Source file"@en ;
     skos:definition "A file of source text."@en ;
     rdfs:seeAlso schema:SoftwareSourceCode .
@@ -50,7 +50,7 @@ software:Symbol
 
 software:Package
     a owl:Class ;
-    rdfs:subClassOf work:Artifact ;
+    rdfs:subClassOf work:Product ;
     rdfs:label "Package"@en ;
     skos:definition "A distributable unit, distinguished by its coordinates."@en ;
     rdfs:seeAlso woc:Package , woc:Library , <https://codemeta.github.io/> .
@@ -107,7 +107,7 @@ software:Developer
     a owl:Class ;
     rdfs:subClassOf work:Agent ;
     rdfs:label "Developer"@en ;
-    skos:definition "A person who changes the software."@en .
+    skos:definition "An agent that develops or modifies software."@en .
 
 software:Reviewer
     a owl:Class ;

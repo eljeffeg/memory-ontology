@@ -4,6 +4,7 @@
 @prefix prov: <http://www.w3.org/ns/prov#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <https://schema.org/> .
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
 @prefix vann: <http://purl.org/vocab/vann/> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
@@ -14,13 +15,14 @@
     dcterms:title "Work Ontology"@en ;
     dcterms:description "A small upper vocabulary for agents, artifacts, work items, changes, and topics. Memory records and time stay outside this file."@en ;
     dcterms:issued "2026-11-04"^^xsd:date ;
-    owl:versionIRI <http://nova.dev/work/0.1.0> ;
-    owl:versionInfo "0.1.0" ;
+    owl:versionIRI <http://nova.dev/work/0.2.0> ;
+    owl:versionInfo "0.2.0" ;
     vann:preferredNamespacePrefix "work" ;
     vann:preferredNamespaceUri "http://nova.dev/work#" ;
     rdfs:seeAlso <http://nova.dev/temporal#> , <http://www.w3.org/ns/prov#> , <http://se-on.org/> , <http://purl.obolibrary.org/obo/swo.owl> , <https://schema.org/> ;
     rdfs:comment "Subclass, inverse, domain, and range infer additional facts. They do not reject a second value, an unknown status, or a dangling object. This vocabulary declares no owl:FunctionalProperty and no owl:imports."@en ;
     skos:editorialNote "work:partOf and work:dependsOn are transitive. That inference runs in an RL profile. QL still uses the asserted triple and its inverse. work:dependsOn is not a confirm-policy functional predicate."@en ;
+    skos:editorialNote "Person, Organization, Product, Project, Place, Event, Document, and Concept are the broad entity classes. Every extracted entity gets one of them or Artifact, WorkItem, or Change. A domain vocabulary such as software adds narrower subclasses."@en ;
     skos:editorialNote "A single current status, assignee, or path is a confirm policy on a memory record, the same mechanism a caller uses for a functional predicate. It is not an OWL functional axiom."@en .
 
 work:Agent
@@ -48,8 +50,61 @@ work:Change
 
 work:Topic
     a owl:Class ;
+    rdfs:subClassOf work:Concept ;
     rdfs:label "Topic"@en ;
     skos:definition "What an episode or artifact is about."@en .
+
+work:Person
+    a owl:Class ;
+    rdfs:subClassOf work:Agent ;
+    rdfs:label "Person"@en ;
+    skos:definition "A named human."@en ;
+    rdfs:seeAlso schema:Person .
+
+work:Organization
+    a owl:Class ;
+    rdfs:subClassOf work:Agent ;
+    rdfs:label "Organization"@en ;
+    skos:definition "A company, team, community, or other group."@en ;
+    rdfs:seeAlso schema:Organization .
+
+work:Product
+    a owl:Class ;
+    rdfs:subClassOf work:Artifact ;
+    rdfs:label "Product"@en ;
+    skos:definition "A named product, service, application, library, or tool."@en ;
+    rdfs:seeAlso schema:Product , schema:SoftwareApplication .
+
+work:Project
+    a owl:Class ;
+    rdfs:label "Project"@en ;
+    skos:definition "A named project or initiative."@en ;
+    rdfs:seeAlso schema:Project .
+
+work:Place
+    a owl:Class ;
+    rdfs:label "Place"@en ;
+    skos:definition "A location such as a city, country, site, or address."@en ;
+    rdfs:seeAlso schema:Place .
+
+work:Event
+    a owl:Class ;
+    rdfs:label "Event"@en ;
+    skos:definition "Something that happens at a time, such as a meeting, release, or incident."@en ;
+    rdfs:seeAlso schema:Event .
+
+work:Document
+    a owl:Class ;
+    rdfs:subClassOf work:Artifact ;
+    rdfs:label "Document"@en ;
+    skos:definition "A written work such as a file, page, specification, or note."@en ;
+    rdfs:seeAlso schema:CreativeWork , schema:DigitalDocument .
+
+work:Concept
+    a owl:Class ;
+    rdfs:label "Concept"@en ;
+    skos:definition "An idea, technique, or subject being discussed."@en ;
+    rdfs:seeAlso schema:DefinedTerm .
 
 work:Status
     a owl:Class ;
