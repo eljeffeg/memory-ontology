@@ -46,6 +46,14 @@ Memory records add memory:kind and other memory-specific properties to temporal 
 Curated knowledge from outside memory, such as published reports or third-party briefs, is not a memory record. Keep it in its own graph, for example as `work:Document` resources linked to topics with `work:about`. A belief, procedure, proposal, or retraction can name such a resource with `memory:source`. `memory:evidence` stays reserved for memory records, so a reader can tell what was observed in a session from what came from an outside source.
 
 ```turtle
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix temporal: <http://nova.dev/temporal#> .
+@prefix memory: <http://nova.dev/memory#> .
+@prefix work: <http://nova.dev/work#> .
+@prefix ex: <https://example.org/> .
+
 ex:report-123 a work:Document ;
     dcterms:publisher ex:publisher ;
     work:about ex:release .
