@@ -18,17 +18,15 @@ ex:episode-2 a temporal:TemporalAssertion ;
     temporal:validFrom "2026-11-02T10:00:00Z"^^xsd:dateTimeStamp .
 
 ex:session-brief-1 a temporal:TemporalAssertion ;
-    rdf:reifies <<( ex:session-1 ex:summarizedBy ex:session-brief-text-1 )>> ;
+    rdf:reifies <<( ex:session-1 memory:brief "Alice said the release is planned." )>> ;
     memory:kind memory:SessionBrief ;
     memory:evidence ex:episode-1 ;
-    memory:brief "Alice said the release is planned." ;
-    memory:briefTopic "release planning" ;
+    memory:topicTag "release planning" ;
     temporal:validFrom "2026-11-01T11:00:00Z"^^xsd:dateTimeStamp .
 
 ex:session-brief-2 a temporal:TemporalAssertion ;
-    rdf:reifies <<( ex:session-2 ex:summarizedBy ex:session-brief-text-2 )>> ;
+    rdf:reifies <<( ex:session-2 memory:brief "Bob said the release moved." )>> ;
     memory:kind memory:SessionBrief ;
     memory:evidence ex:episode-2 ;
-    memory:brief "Bob said the release moved." ;
-    memory:briefTopic "release planning" ;
+    memory:topicTag "release planning" ;
     temporal:validFrom "2026-11-02T11:00:00Z"^^xsd:dateTimeStamp .

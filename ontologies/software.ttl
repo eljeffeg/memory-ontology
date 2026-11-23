@@ -19,6 +19,7 @@
     dcterms:issued "2026-11-04"^^xsd:date ;
     owl:versionIRI <http://nova.dev/software/0.2.0> ;
     owl:versionInfo "0.2.0" ;
+    dcterms:license <https://creativecommons.org/licenses/by/4.0/> ;
     vann:preferredNamespacePrefix "software" ;
     vann:preferredNamespaceUri "http://nova.dev/software#" ;
     rdfs:seeAlso work: , doap: , woc: , schema:SoftwareSourceCode , <https://codemeta.github.io/> ;

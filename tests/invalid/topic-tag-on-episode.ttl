@@ -1,0 +1,13 @@
+# A suggested topic label belongs on a brief.
+# expect: memory:topicTag is allowed only on a session brief or a topic brief.
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix temporal: <http://nova.dev/temporal#> .
+@prefix memory: <http://nova.dev/memory#> .
+@prefix ex: <https://example.org/> .
+
+ex:episode-1 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:alice ex:said ex:release-planned )>> ;
+    memory:kind memory:Episode ;
+    memory:topicTag "release planning" ;
+    temporal:validFrom "2026-11-01T10:00:00Z"^^xsd:dateTimeStamp .

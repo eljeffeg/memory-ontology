@@ -1,5 +1,5 @@
-# Brief text belongs on a brief.
-# expect: memory:brief is allowed only on a session brief or a topic brief.
+# Only a brief record reifies a memory:brief triple.
+# expect: A session brief or topic brief reifies a memory:brief triple, and no other memory record does.
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix temporal: <http://nova.dev/temporal#> .
@@ -12,15 +12,8 @@ ex:episode-1 a temporal:TemporalAssertion ;
     memory:role memory:User ;
     temporal:validFrom "2026-11-01T10:00:00Z"^^xsd:dateTimeStamp .
 
-ex:episode-2 a temporal:TemporalAssertion ;
-    rdf:reifies <<( ex:bob ex:said ex:release-moved )>> ;
-    memory:kind memory:Episode ;
-    memory:role memory:User ;
-    temporal:validFrom "2026-11-02T10:00:00Z"^^xsd:dateTimeStamp .
-
 ex:belief-1 a temporal:TemporalAssertion ;
-    rdf:reifies <<( ex:release ex:status ex:planned )>> ;
+    rdf:reifies <<( ex:session-1 memory:brief "Not a brief." )>> ;
     memory:kind memory:Belief ;
     memory:evidence ex:episode-1 ;
-    memory:brief "Not a brief." ;
     temporal:validFrom "2026-11-01T12:00:00Z"^^xsd:dateTimeStamp .

@@ -16,6 +16,7 @@
     dcterms:issued "2026-11-03"^^xsd:date ;
     owl:versionIRI <http://nova.dev/temporal/0.1.0> ;
     owl:versionInfo "0.1.0" ;
+    dcterms:license <https://creativecommons.org/licenses/by/4.0/> ;
     vann:preferredNamespacePrefix "temporal" ;
     vann:preferredNamespaceUri "http://nova.dev/temporal#" ;
     rdfs:seeAlso <http://nova.dev/memory#> ;

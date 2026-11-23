@@ -17,6 +17,7 @@
     dcterms:issued "2026-11-04"^^xsd:date ;
     owl:versionIRI <http://nova.dev/work/0.2.0> ;
     owl:versionInfo "0.2.0" ;
+    dcterms:license <https://creativecommons.org/licenses/by/4.0/> ;
     vann:preferredNamespacePrefix "work" ;
     vann:preferredNamespaceUri "http://nova.dev/work#" ;
     rdfs:seeAlso <http://nova.dev/temporal#> , <http://www.w3.org/ns/prov#> , <http://se-on.org/> , <http://purl.obolibrary.org/obo/swo.owl> , <https://schema.org/> ;

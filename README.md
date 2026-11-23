@@ -50,3 +50,7 @@ Load `temporal-shapes.shacl.ttl` to check temporal assertions. To check memory r
 SHACL validation is not a substitute for all application checks. For example, the temporal shapes cannot require the object of `rdf:reifies` to be a triple term, and timestamp comparisons depend on validator support for `xsd:dateTimeStamp`. Nova does not run the temporal and memory shapes on its memory write path. See the comments in each shape file for further limits.
 
 `tests/run.sh` checks the temporal and memory shapes against the fixtures in `tests/valid` (must conform) and `tests/invalid` (must fail with the messages each file lists). It needs Apache Jena on `PATH`, or `JENA_HOME` set, from a release that reads RDF 1.2 triple terms (tested with 6.3.0 on Java 21).
+
+## License
+
+The ontologies, shapes, and documentation are licensed under the [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/) (CC BY 4.0). See [LICENSE](LICENSE).
