@@ -2,6 +2,8 @@
 
 These RDF vocabularies and SHACL shapes describe temporal assertions, agent memory, work, software, and the evidence. They define terms and constraints; they do not themselves store data, run inference, or enforce validation.
 
+![memory-and-temporal-ontology-diagram](./assets/diagram.webp)
+
 ## Files
 
 | File | Purpose | Namespace |
