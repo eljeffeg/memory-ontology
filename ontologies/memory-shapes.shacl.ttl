@@ -264,7 +264,7 @@ memory:BriefPropositionShape
     a sh:NodeShape ;
     sh:targetSubjectsOf rdf:reifies ;
     rdfs:label "Brief proposition"@en ;
-    rdfs:comment "A brief record reifies a triple whose predicate is memory:brief. Its subject is the session or topic, and its object is the Markdown string. Only a session brief or a topic brief reifies a memory:brief triple. A reifier with no memory:kind is not a memory record and is not checked."@en ;
+    rdfs:comment "A brief record reifies a triple whose predicate is memory:brief. Its subject is the session or topic, and its object is the Markdown, as an xsd:string or an rdf:langString. Only a session brief or a topic brief reifies a memory:brief triple. A reifier with no memory:kind is not a memory record and is not checked."@en ;
     sh:sparql [
         a sh:SPARQLConstraint ;
         sh:message "A session brief or topic brief reifies a memory:brief triple, and no other memory record does."@en ;
@@ -281,13 +281,13 @@ memory:BriefPropositionShape
     ] ;
     sh:sparql [
         a sh:SPARQLConstraint ;
-        sh:message "The object of a reified memory:brief triple is an xsd:string."@en ;
+        sh:message "The object of a reified memory:brief triple is an xsd:string or an rdf:langString."@en ;
         sh:prefixes memory:BriefShapePrefixes ;
         sh:select """
             SELECT $this WHERE {
                 $this rdf:reifies ?triple .
                 FILTER (PREDICATE(?triple) = memory:brief)
-                FILTER (!isLiteral(OBJECT(?triple)) || datatype(OBJECT(?triple)) != xsd:string)
+                FILTER (!isLiteral(OBJECT(?triple)) || !(datatype(OBJECT(?triple)) IN (xsd:string, rdf:langString)))
             }
         """ ;
     ] .
@@ -304,18 +304,18 @@ memory:BriefShapePrefixes
         sh:namespace "http://nova.dev/memory#"^^xsd:anyURI ;
     ] .
 
-memory:BriefTopicOnlyOnBriefShape
+memory:TopicTagOnlyOnBriefShape
     a sh:NodeShape ;
-    sh:targetSubjectsOf memory:briefTopic ;
-    rdfs:label "Brief topic only on a brief"@en ;
+    sh:targetSubjectsOf memory:topicTag ;
+    rdfs:label "Topic tag only on a brief"@en ;
     sh:property [
         sh:path memory:kind ;
         sh:minCount 1 ;
         sh:in ( memory:SessionBrief memory:TopicBrief ) ;
-        sh:message "memory:briefTopic is allowed only on a session brief or a topic brief."@en ;
+        sh:message "memory:topicTag is allowed only on a session brief or a topic brief."@en ;
     ] ;
     sh:property [
-        sh:path memory:briefTopic ;
+        sh:path memory:topicTag ;
         sh:datatype xsd:string ;
-        sh:message "memory:briefTopic is a string."@en ;
+        sh:message "memory:topicTag is a string."@en ;
     ] .

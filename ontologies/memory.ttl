@@ -378,14 +378,14 @@ memory:brief
     rdfs:label "brief"@en ;
     skos:definition "Generated Markdown that summarizes a session or a topic."@en ;
     memory:factReading "Session or Topic has brief Markdown."@en ;
-    rdfs:comment "memory:brief is the predicate of the triple a brief record reifies. Its subject is the session or topic the brief summarizes, and its object is the Markdown. The record, not the subject, carries memory:kind, memory:evidence, memory:briefTopic, and valid time. A record of kind SessionBrief or TopicBrief reifies a memory:brief triple, and no other memory record does. The bare triple need not be asserted. Each version of a brief is its own record."@en ;
-    rdfs:range xsd:string .
+    rdfs:comment "memory:brief is the predicate of the triple a brief record reifies. Its subject is the session or topic the brief summarizes, and its object is the Markdown, as memory:Prose. The record, not the subject, carries memory:kind, memory:evidence, memory:topicTag, and valid time. A record of kind SessionBrief or TopicBrief reifies a memory:brief triple, and no other memory record does. The bare triple need not be asserted. Each version of a brief is its own record."@en ;
+    rdfs:range memory:Prose .
 
-memory:briefTopic
+memory:topicTag
     a owl:DatatypeProperty ;
-    rdfs:label "brief topic"@en ;
+    rdfs:label "topic tag"@en ;
     skos:definition "A normalized suggested topic label on a generated brief, not a verified entity or claim."@en ;
     memory:factReading "A generated brief suggests topic Label."@en ;
-    rdfs:comment "Allowed only on a session brief or a topic brief."@en ;
+    rdfs:comment "Allowed only on a session brief or a topic brief. The value is a plain xsd:string with no language tag, so equal labels match exactly."@en ;
     rdfs:domain memory:TemporalAssertion ;
     rdfs:range xsd:string .
