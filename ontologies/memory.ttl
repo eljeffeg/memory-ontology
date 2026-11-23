@@ -17,6 +17,7 @@
     dcterms:issued "2026-11-03"^^xsd:date ;
     owl:versionIRI <http://nova.dev/memory/0.1.0> ;
     owl:versionInfo "0.1.0" ;
+    dcterms:license <https://creativecommons.org/licenses/by/4.0/> ;
     vann:preferredNamespacePrefix "memory" ;
     vann:preferredNamespaceUri "http://nova.dev/memory#" ;
     rdfs:seeAlso <http://nova.dev/temporal#> ;
@@ -46,7 +47,7 @@ memory:TemporalAssertion
     skos:definition "One memory record: a temporal assertion plus the memory-only terms."@en ;
     rdfs:seeAlso rdf:reifies , temporal:TemporalAssertion ;
     memory:factReading "A memory record is a temporal assertion."@en ;
-    rdfs:comment "The stored rdf:type is temporal:TemporalAssertion. memory:kind is what makes that assertion a memory record. memory:TemporalAssertion is that class. Episode, Belief, Retraction, Procedure, and Proposal are not classes of the record. A memory record is an interval: it has temporal:validFrom. It must not carry temporal:validAt together with temporal:validFrom, and it must not be instant-only. temporal:validAt remains available on a temporal assertion that is a single instant."@en ;
+    rdfs:comment "The stored rdf:type is temporal:TemporalAssertion. memory:kind is what makes that assertion a memory record. memory:TemporalAssertion is that class. Episode, Belief, Retraction, Procedure, Proposal, SessionBrief, and TopicBrief are not classes of the record. A memory record is an interval: it has temporal:validFrom. It must not carry temporal:validAt together with temporal:validFrom, and it must not be instant-only. temporal:validAt remains available on a temporal assertion that is a single instant."@en ;
     rdfs:comment "rdf:reifies links the record to one triple term. That predicate is RDF 1.2, and some stores do not implement it yet. Valid time is temporal:validFrom and temporal:validUntil. Transaction time is temporal:recordedFrom when the store has a datetime; a native commit sequence satisfies it when the literal is absent. temporal:recordedSequence is the RDF form of that sequence for export. An in-process write may omit it when the log already stores the sequence."@en .
 
 memory:Clock
@@ -76,9 +77,9 @@ memory:closes
 memory:kind
     a owl:ObjectProperty ;
     rdfs:label "kind"@en ;
-    skos:definition "The flat kind of a memory record."@en ;
+    skos:definition "The kind of a memory record."@en ;
     memory:factReading "A memory record has kind Kind."@en ;
-    rdfs:comment "The object is one of the five concepts in memory:KindScheme."@en ;
+    rdfs:comment "The object is a concept in memory:KindScheme that has no narrower concept. memory:Brief only groups SessionBrief and TopicBrief, and is never the object."@en ;
     rdfs:domain memory:TemporalAssertion ;
     rdfs:range skos:Concept .
 
@@ -189,7 +190,7 @@ memory:procedure
 memory:pinned
     a owl:DatatypeProperty ;
     rdfs:label "pinned"@en ;
-    skos:definition "Marks a record that ranked recall returns before unpinned records."@en ;
+    skos:definition "Marks a record as prioritized over unpinned records."@en ;
     memory:factReading "A memory record is pinned Boolean."@en ;
     rdfs:comment "The xsd:boolean true is present when a row is pinned. Otherwise the predicate is omitted."@en ;
     rdfs:domain memory:TemporalAssertion ;
@@ -242,9 +243,9 @@ memory:KindScheme
     a skos:ConceptScheme ;
     rdfs:label "Memory kind"@en ;
     skos:prefLabel "Memory kind"@en ;
-    skos:definition "The flat set of memory record kinds."@en ;
-    rdfs:comment "No kind is broader than another. Current valid time means temporal:validFrom is at or before now, and there is no temporal:validUntil or now is before that end. A future temporal:validFrom is not current. When a record has both temporal:recordedFrom and temporal:recordedSequence, they are two spellings of one transaction interval and must agree. In a store with a commit log, the sequence decides what is current: recorded at or before the head commit, and not closed by a later commit. temporal:recordedFrom decides what is current only when no sequence is present. Current recall returns episodes, beliefs, and procedures that are current. It omits retractions, proposals, and generated briefs."@en ;
-    skos:hasTopConcept memory:Episode , memory:Belief , memory:Retraction , memory:Procedure , memory:Proposal , memory:SessionBrief , memory:TopicBrief .
+    skos:definition "The set of memory record kinds."@en ;
+    rdfs:comment "memory:Brief is the only kind with narrower kinds: SessionBrief and TopicBrief. Current valid time means temporal:validFrom is at or before now, and there is no temporal:validUntil or now is before that end. A future temporal:validFrom is not current. When a record has both temporal:recordedFrom and temporal:recordedSequence, they are two spellings of one transaction interval and must agree. In a store with a commit log, the sequence decides what is current: recorded at or before the head commit, and not closed by a later commit. temporal:recordedFrom decides what is current only when no sequence is present."@en ;
+    skos:hasTopConcept memory:Episode , memory:Belief , memory:Retraction , memory:Procedure , memory:Proposal , memory:Brief .
 
 memory:Episode
     a skos:Concept ;
@@ -271,7 +272,7 @@ memory:Retraction
     rdfs:label "Retraction"@en ;
     skos:prefLabel "Retraction"@en ;
     skos:definition "A new record that supersedes an earlier memory record."@en ;
-    rdfs:comment "The record reifies the triple being retracted. It uses temporal:supersedes to point at the record it closes. memory:closes says which clock it closes, even when the store derives an end from the newer record's start. An asserted end on that earlier record, if present, must agree with memory:closes. Current recall omits it. A retraction has no memory:lexical."@en .
+    rdfs:comment "The record reifies the triple being retracted. It uses temporal:supersedes to point at the record it closes. memory:closes says which clock it closes, even when the store derives an end from the newer record's start. An asserted end on that earlier record, if present, must agree with memory:closes. A retraction has no memory:lexical."@en .
 
 memory:Procedure
     a skos:Concept ;
@@ -288,7 +289,7 @@ memory:Proposal
     skos:topConceptOf memory:KindScheme ;
     rdfs:label "Proposal"@en ;
     skos:prefLabel "Proposal"@en ;
-    skos:definition "A belief-shaped record that recall hides until it is confirmed."@en ;
+    skos:definition "A belief-shaped record that is not yet confirmed."@en ;
     rdfs:comment "Confirmation writes a belief that cites the proposal's evidence, then supersedes the proposal and closes memory:ValidTime."@en .
 
 memory:RoleScheme
@@ -341,34 +342,43 @@ memory:Decision
     rdfs:label "Decision"@en ;
     skos:prefLabel "Decision"@en ;
     skos:definition "An episode whose content is a decision."@en ;
-    rdfs:comment "Object of memory:episodeType. Not an object of memory:role, and not a sixth record kind."@en .
+    rdfs:comment "Object of memory:episodeType. Not an object of memory:role, and not a record kind."@en .
 
 # Typed generated documents; narrative and provenance are stored separately.
-memory:SessionBrief
+memory:Brief
     a skos:Concept ;
     skos:inScheme memory:KindScheme ;
     skos:topConceptOf memory:KindScheme ;
+    skos:narrower memory:SessionBrief , memory:TopicBrief ;
+    rdfs:label "Brief"@en ;
+    skos:prefLabel "Brief"@en ;
+    skos:definition "A generated document that summarizes memory records."@en ;
+    rdfs:comment "A grouping concept. A record has kind SessionBrief or TopicBrief, never Brief. Its text is the object of a reified memory:brief triple."@en .
+
+memory:SessionBrief
+    a skos:Concept ;
+    skos:inScheme memory:KindScheme ;
+    skos:broader memory:Brief ;
     rdfs:label "Session brief"@en ;
     skos:prefLabel "Session brief"@en ;
     skos:definition "A generated document that summarizes one session."@en ;
-    rdfs:comment "memory:evidence cites the episode records it summarizes. A session brief is not evidence for a belief, procedure, or proposal. Current recall omits it."@en .
+    rdfs:comment "memory:evidence cites the episode records it summarizes. A session brief is not evidence for a belief, procedure, or proposal."@en .
 
 memory:TopicBrief
     a skos:Concept ;
     skos:inScheme memory:KindScheme ;
-    skos:topConceptOf memory:KindScheme ;
+    skos:broader memory:Brief ;
     rdfs:label "Topic brief"@en ;
     skos:prefLabel "Topic brief"@en ;
     skos:definition "A generated document that summarizes one topic across sessions."@en ;
-    rdfs:comment "memory:evidence cites session brief records. A record does not change, so citing one cites that version. A topic brief is not evidence for a belief, procedure, or proposal. Current recall omits it."@en .
+    rdfs:comment "memory:evidence cites session brief records. A record does not change, so citing one cites that version. A topic brief is not evidence for a belief, procedure, or proposal."@en .
 
 memory:brief
     a owl:DatatypeProperty ;
     rdfs:label "brief"@en ;
-    skos:definition "Generated Markdown for a session or topic brief, distinguished by memory:kind on the assertion."@en ;
-    memory:factReading "A generated brief has text Markdown."@en ;
-    rdfs:comment "Allowed only on a session brief or a topic brief. The shapes do not require it, because the narrative may be stored apart from the record."@en ;
-    rdfs:domain memory:TemporalAssertion ;
+    skos:definition "Generated Markdown that summarizes a session or a topic."@en ;
+    memory:factReading "Session or Topic has brief Markdown."@en ;
+    rdfs:comment "memory:brief is the predicate of the triple a brief record reifies. Its subject is the session or topic the brief summarizes, and its object is the Markdown. The record, not the subject, carries memory:kind, memory:evidence, memory:briefTopic, and valid time. A record of kind SessionBrief or TopicBrief reifies a memory:brief triple, and no other memory record does. The bare triple need not be asserted. Each version of a brief is its own record."@en ;
     rdfs:range xsd:string .
 
 memory:briefTopic

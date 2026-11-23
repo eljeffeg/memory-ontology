@@ -260,21 +260,48 @@ memory:ClosesRequiresKindShape
         sh:message "memory:closes is only legal on a memory record. A domain record with memory:closes memory:RecordedTime is not a recorded-time correction."@en ;
     ] .
 
-memory:BriefOnlyOnBriefShape
+memory:BriefPropositionShape
     a sh:NodeShape ;
-    sh:targetSubjectsOf memory:brief ;
-    rdfs:label "Brief text only on a brief"@en ;
-    sh:property [
-        sh:path memory:kind ;
-        sh:minCount 1 ;
-        sh:in ( memory:SessionBrief memory:TopicBrief ) ;
-        sh:message "memory:brief is allowed only on a session brief or a topic brief."@en ;
+    sh:targetSubjectsOf rdf:reifies ;
+    rdfs:label "Brief proposition"@en ;
+    rdfs:comment "A brief record reifies a triple whose predicate is memory:brief. Its subject is the session or topic, and its object is the Markdown string. Only a session brief or a topic brief reifies a memory:brief triple. A reifier with no memory:kind is not a memory record and is not checked."@en ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "A session brief or topic brief reifies a memory:brief triple, and no other memory record does."@en ;
+        sh:prefixes memory:BriefShapePrefixes ;
+        sh:select """
+            SELECT $this WHERE {
+                $this memory:kind ?kind ;
+                    rdf:reifies ?triple .
+                BIND (PREDICATE(?triple) = memory:brief AS ?briefTriple)
+                BIND (?kind IN (memory:SessionBrief, memory:TopicBrief) AS ?briefRecord)
+                FILTER (?briefTriple != ?briefRecord)
+            }
+        """ ;
     ] ;
-    sh:property [
-        sh:path memory:brief ;
-        sh:maxCount 1 ;
-        sh:datatype xsd:string ;
-        sh:message "A brief has at most one memory:brief, as a string."@en ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:message "The object of a reified memory:brief triple is an xsd:string."@en ;
+        sh:prefixes memory:BriefShapePrefixes ;
+        sh:select """
+            SELECT $this WHERE {
+                $this rdf:reifies ?triple .
+                FILTER (PREDICATE(?triple) = memory:brief)
+                FILTER (!isLiteral(OBJECT(?triple)) || datatype(OBJECT(?triple)) != xsd:string)
+            }
+        """ ;
+    ] .
+
+memory:BriefShapePrefixes
+    sh:declare [
+        sh:prefix "rdf" ;
+        sh:namespace "http://www.w3.org/1999/02/22-rdf-syntax-ns#"^^xsd:anyURI ;
+    ] , [
+        sh:prefix "xsd" ;
+        sh:namespace "http://www.w3.org/2001/XMLSchema#"^^xsd:anyURI ;
+    ] , [
+        sh:prefix "memory" ;
+        sh:namespace "http://nova.dev/memory#"^^xsd:anyURI ;
     ] .
 
 memory:BriefTopicOnlyOnBriefShape
