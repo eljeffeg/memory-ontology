@@ -1,0 +1,13 @@
+# A source is named by IRI, not given as a text string.
+# expect: memory:source names an external resource by IRI, not a memory record.
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix temporal: <http://nova.dev/temporal#> .
+@prefix memory: <http://nova.dev/memory#> .
+@prefix ex: <https://example.org/> .
+
+ex:belief-1 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:release ex:status ex:planned )>> ;
+    memory:kind memory:Belief ;
+    memory:source "Release outlook" ;
+    temporal:validFrom "2026-11-01T12:00:00Z"^^xsd:dateTimeStamp .

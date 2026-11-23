@@ -23,7 +23,7 @@
     rdfs:seeAlso <http://nova.dev/temporal#> ;
     rdfs:comment "Valid time, transaction time, and supersession are temporal:validFrom, temporal:validUntil, temporal:validAt, temporal:recordedFrom, temporal:recordedUntil, temporal:recordedSequence, temporal:recordedUntilSequence, and temporal:supersedes. This vocabulary does not declare a second interval. The graph a proposition is about is temporal:scopeGraph. A proposition with no named domain graph uses temporal:DefaultGraph. Beliefs and proposals use the caller's domain graph. Episodes and procedures use temporal:DefaultGraph."@en ;
     rdfs:comment "A memory record is a temporal:TemporalAssertion that also carries memory:kind. A later record is a new resource. It points at the closed record with temporal:supersedes and names the clock it closes with memory:closes. A world change closes memory:ValidTime. Transaction time may be a native commit sequence instead of temporal:recordedFrom. The RDF form of that sequence is temporal:recordedSequence and temporal:recordedUntilSequence. A memory record must not carry temporal:validAt."@en ;
-    skos:editorialNote "Alignments are rdfs:subPropertyOf only: memory:agent to prov:wasAttributedTo and dcterms:creator, and memory:evidence to dcterms:references and prov:wasInfluencedBy. memory:TemporalAssertion is a subclass of prov:Entity and of temporal:TemporalAssertion. This file does not import PROV, Dublin Core, or OWL-Time, and it declares no owl:equivalentProperty."@en ;
+    skos:editorialNote "Alignments are rdfs:subPropertyOf only: memory:agent to prov:wasAttributedTo and dcterms:creator, memory:evidence to dcterms:references and prov:wasInfluencedBy, and memory:source to dcterms:source and prov:wasInfluencedBy. memory:TemporalAssertion is a subclass of prov:Entity and of temporal:TemporalAssertion. This file does not import PROV, Dublin Core, or OWL-Time, and it declares no owl:equivalentProperty."@en ;
     skos:editorialNote "temporal:supersedes is not a revised version of a record: a retraction closes a record. memory:lexical is not dcterms:description. memory:owner is not dcterms:creator or prov:wasAttributedTo. memory:policy is not dcterms:conformsTo and not prov:hadPlan. memory:session is not prov:wasGeneratedBy."@en ;
     skos:editorialNote "OWL-Time can be derived from the endpoint literals. Instant nodes are not stored. rdf:reifies is RDF 1.2, and some stores do not implement it yet. This vocabulary defines no other reification predicate."@en ;
     skos:editorialNote "A policy resource may be typed prov:Plan. This vocabulary does not require that type. memory:Session is not a prov:Activity. Kinds are objects of memory:kind. They are not a SKOS hierarchy and not subclasses of prov:Entity."@en ;
@@ -143,6 +143,15 @@ memory:evidence
     rdfs:comment "Beliefs, procedures, proposals, and session briefs cite episode records. Topic briefs cite particular session brief versions. Generated briefs are not evidence for claims."@en ;
     rdfs:domain memory:TemporalAssertion ;
     rdfs:range memory:TemporalAssertion .
+
+memory:source
+    a owl:ObjectProperty ;
+    rdfs:subPropertyOf dcterms:source , prov:wasInfluencedBy ;
+    rdfs:label "source"@en ;
+    skos:definition "An external resource, outside memory, that a memory record rests on."@en ;
+    memory:factReading "A memory record rests on an external source."@en ;
+    rdfs:comment "The object is an IRI for a curated resource such as a published document or brief, usually a work:Document kept in its own graph. It is not a memory record; memory:evidence cites those. Beliefs, procedures, proposals, and retractions may name sources. Episodes and generated briefs do not. A record may have both memory:evidence and memory:source."@en ;
+    rdfs:domain memory:TemporalAssertion .
 
 memory:role
     a owl:ObjectProperty ;

@@ -43,6 +43,29 @@ A `temporal:TemporalAssertion` is an identifiable record that uses RDF 1.2 `rdf:
 
 Memory records add memory:kind and other memory-specific properties to temporal assertions. They use intervals beginning with temporal:validFrom, not temporal:validAt. Superseding records are separate resources. A store may keep recorded time as commit sequences rather than datetime literals; a portable RDF export must include the corresponding recorded-time coordinates. RDF 1.2 triple terms and rdf:reifies require compatible tooling.
 
+Curated knowledge from outside memory, such as published reports or third-party briefs, is not a memory record. Keep it in its own graph, for example as `work:Document` resources linked to topics with `work:about`. A belief, procedure, proposal, or retraction can name such a resource with `memory:source`. `memory:evidence` stays reserved for memory records, so a reader can tell what was observed in a session from what came from an outside source.
+
+```turtle
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix temporal: <http://nova.dev/temporal#> .
+@prefix memory: <http://nova.dev/memory#> .
+@prefix work: <http://nova.dev/work#> .
+@prefix ex: <https://example.org/> .
+
+ex:report-123 a work:Document ;
+    dcterms:publisher ex:publisher ;
+    work:about ex:release .
+
+ex:belief-1 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:release ex:status ex:planned )>> ;
+    memory:kind memory:Belief ;
+    memory:evidence ex:episode-1 ;
+    memory:source ex:report-123 ;
+    temporal:validFrom "2026-11-01T12:00:00Z"^^xsd:dateTimeStamp .
+```
+
 ## Validation
 
 Load `temporal-shapes.shacl.ttl` to check temporal assertions. To check memory records, load **both** temporal and memory shape files: the memory shapes do not invoke the temporal shapes automatically. Include referenced records in the validation data when checking relationships such as evidence and supersession. The answer-evidence shapes are a separate validation set.
