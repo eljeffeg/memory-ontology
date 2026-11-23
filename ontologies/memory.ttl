@@ -344,21 +344,38 @@ memory:Decision
     rdfs:comment "Object of memory:episodeType. Not an object of memory:role, and not a sixth record kind."@en .
 
 # Typed generated documents; narrative and provenance are stored separately.
-memory:SessionBrief a skos:Concept ;
+memory:SessionBrief
+    a skos:Concept ;
     skos:inScheme memory:KindScheme ;
     skos:topConceptOf memory:KindScheme ;
-    rdfs:label "Session brief"@en .
+    rdfs:label "Session brief"@en ;
+    skos:prefLabel "Session brief"@en ;
+    skos:definition "A generated document that summarizes one session."@en ;
+    rdfs:comment "memory:evidence cites the episode records it summarizes. A session brief is not evidence for a belief, procedure, or proposal. Current recall omits it."@en .
 
-memory:TopicBrief a skos:Concept ;
+memory:TopicBrief
+    a skos:Concept ;
     skos:inScheme memory:KindScheme ;
     skos:topConceptOf memory:KindScheme ;
-    rdfs:label "Topic brief"@en .
+    rdfs:label "Topic brief"@en ;
+    skos:prefLabel "Topic brief"@en ;
+    skos:definition "A generated document that summarizes one topic across sessions."@en ;
+    rdfs:comment "memory:evidence cites session brief records. A record does not change, so citing one cites that version. A topic brief is not evidence for a belief, procedure, or proposal. Current recall omits it."@en .
 
-memory:brief a owl:DatatypeProperty ;
-    rdfs:range xsd:string ;
-    skos:definition "Generated Markdown for a session or topic brief, distinguished by memory:kind on the assertion."@en .
-
-memory:briefTopic a owl:DatatypeProperty ;
+memory:brief
+    a owl:DatatypeProperty ;
+    rdfs:label "brief"@en ;
+    skos:definition "Generated Markdown for a session or topic brief, distinguished by memory:kind on the assertion."@en ;
+    memory:factReading "A generated brief has text Markdown."@en ;
+    rdfs:comment "Allowed only on a session brief or a topic brief. The shapes do not require it, because the narrative may be stored apart from the record."@en ;
     rdfs:domain memory:TemporalAssertion ;
-    rdfs:range xsd:string ;
-    skos:definition "A normalized suggested topic label on a generated brief, not a verified entity or claim."@en .
+    rdfs:range xsd:string .
+
+memory:briefTopic
+    a owl:DatatypeProperty ;
+    rdfs:label "brief topic"@en ;
+    skos:definition "A normalized suggested topic label on a generated brief, not a verified entity or claim."@en ;
+    memory:factReading "A generated brief suggests topic Label."@en ;
+    rdfs:comment "Allowed only on a session brief or a topic brief."@en ;
+    rdfs:domain memory:TemporalAssertion ;
+    rdfs:range xsd:string .

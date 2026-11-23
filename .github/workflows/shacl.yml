@@ -1,0 +1,32 @@
+name: shacl
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  JENA_VERSION: 6.3.0
+  JENA_SHA512: 828ac4bc3b377eacbadd888de5558039688a28eb5357fc741c2eb833582447f53455f75857bd1c832114c9d58beb671d581bad84ea5f0f31d3aff74fe805f0ce
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Install Apache Jena
+        run: |
+          curl -fsSLO "https://archive.apache.org/dist/jena/binaries/apache-jena-${JENA_VERSION}.tar.gz"
+          echo "${JENA_SHA512}  apache-jena-${JENA_VERSION}.tar.gz" | sha512sum -c -
+          tar xzf "apache-jena-${JENA_VERSION}.tar.gz"
+          echo "JENA_HOME=$PWD/apache-jena-${JENA_VERSION}" >> "$GITHUB_ENV"
+      - name: Parse every ontology and shape file
+        run: '"$JENA_HOME/bin/riot" --validate ontologies/*.ttl'
+      - name: Run the SHACL fixtures
+        run: tests/run.sh

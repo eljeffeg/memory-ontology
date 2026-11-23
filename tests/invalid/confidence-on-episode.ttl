@@ -1,0 +1,13 @@
+# Existing rule: confidence is only on a belief.
+# expect: Confidence is allowed only on a belief.
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix temporal: <http://nova.dev/temporal#> .
+@prefix memory: <http://nova.dev/memory#> .
+@prefix ex: <https://example.org/> .
+
+ex:episode-1 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:alice ex:said ex:hello )>> ;
+    memory:kind memory:Episode ;
+    memory:confidence 0.5 ;
+    temporal:validFrom "2026-11-01T10:00:00Z"^^xsd:dateTimeStamp .
