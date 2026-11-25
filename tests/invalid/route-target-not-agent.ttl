@@ -1,0 +1,24 @@
+# A route decision's target is an agent, not a session.
+# expect: A route decision targets a prov:Agent.
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix temporal: <http://nova.dev/temporal#> .
+@prefix memory: <http://nova.dev/memory#> .
+@prefix ex: <https://example.org/> .
+
+ex:episode-1 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:alice ex:said ex:outage-reported )>> ;
+    memory:kind memory:Episode ;
+    memory:role memory:User ;
+    temporal:validFrom "2026-11-01T10:00:00Z"^^xsd:dateTimeStamp .
+
+ex:session-2 a memory:Session .
+
+ex:decision-1 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:outage-ticket ex:routedTo ex:session-2 )>> ;
+    memory:kind memory:Episode ;
+    memory:role memory:Assistant ;
+    memory:episodeType memory:RouteDecision ;
+    memory:target ex:session-2 ;
+    memory:evidence ex:episode-1 ;
+    temporal:validFrom "2026-11-01T10:05:00Z"^^xsd:dateTimeStamp .

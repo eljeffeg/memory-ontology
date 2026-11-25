@@ -1,5 +1,5 @@
 # A generated brief summarizes memory and names no external source.
-# expect: memory:source is allowed only on a belief, procedure, proposal, or retraction.
+# expect: memory:source is allowed only on a belief, procedure, proposal, retraction, or decision episode.
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix temporal: <http://nova.dev/temporal#> .

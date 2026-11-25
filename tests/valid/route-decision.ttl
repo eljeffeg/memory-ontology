@@ -1,0 +1,28 @@
+# A route decision names the agent and cites the episode it acted on.
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix temporal: <http://nova.dev/temporal#> .
+@prefix memory: <http://nova.dev/memory#> .
+@prefix ex: <https://example.org/> .
+
+ex:episode-1 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:alice ex:said ex:outage-reported )>> ;
+    memory:kind memory:Episode ;
+    memory:role memory:User ;
+    temporal:validFrom "2026-11-01T10:00:00Z"^^xsd:dateTimeStamp .
+
+ex:triage-agent a prov:Agent ;
+    prov:actedOnBehalfOf ex:alice .
+
+ex:oncall-agent a prov:Agent .
+
+ex:decision-1 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:outage-ticket ex:routedTo ex:oncall-agent )>> ;
+    memory:kind memory:Episode ;
+    memory:role memory:Assistant ;
+    memory:episodeType memory:RouteDecision ;
+    memory:target ex:oncall-agent ;
+    memory:agent ex:triage-agent ;
+    memory:evidence ex:episode-1 ;
+    temporal:validFrom "2026-11-01T10:05:00Z"^^xsd:dateTimeStamp .

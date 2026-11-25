@@ -140,7 +140,7 @@ memory:evidence
     rdfs:label "evidence"@en ;
     skos:definition "A source record cited by another memory record."@en ;
     memory:factReading "A memory record cites a source record."@en ;
-    rdfs:comment "Beliefs, procedures, proposals, and session briefs cite episode records. Topic briefs cite particular session brief versions. Generated briefs are not evidence for claims."@en ;
+    rdfs:comment "Beliefs, procedures, proposals, and session briefs cite episode records. A decision episode cites the episodes and beliefs it acted on. Topic briefs cite particular session brief versions. Generated briefs are not evidence for claims or decisions."@en ;
     rdfs:domain memory:TemporalAssertion ;
     rdfs:range memory:TemporalAssertion .
 
@@ -150,7 +150,7 @@ memory:source
     rdfs:label "source"@en ;
     skos:definition "An external resource, outside memory, that a memory record rests on."@en ;
     memory:factReading "A memory record rests on an external source."@en ;
-    rdfs:comment "The object is an IRI for a curated resource such as a published document or brief, usually a work:Document kept in its own graph. It is not a memory record; memory:evidence cites those. Beliefs, procedures, proposals, and retractions may name sources. Episodes and generated briefs do not. A record may have both memory:evidence and memory:source."@en ;
+    rdfs:comment "The object is an IRI for a curated resource such as a published document or brief, usually a work:Document kept in its own graph. It is not a memory record; memory:evidence cites those. Beliefs, procedures, proposals, retractions, and decision episodes may name sources. Other episodes and generated briefs do not. A record may have both memory:evidence and memory:source."@en ;
     rdfs:domain memory:TemporalAssertion .
 
 memory:role
@@ -167,9 +167,17 @@ memory:episodeType
     rdfs:label "episode type"@en ;
     skos:definition "What an episode contains."@en ;
     memory:factReading "An episode has episode type Type."@en ;
-    rdfs:comment "The object is a concept in memory:EpisodeTypeScheme. Decision describes the content."@en ;
+    rdfs:comment "The object is a concept in memory:EpisodeTypeScheme. Decision describes the content. RouteDecision, SpawnDecision, and ActionDecision are narrower decisions that name a memory:target."@en ;
     rdfs:domain memory:TemporalAssertion ;
     rdfs:range skos:Concept .
+
+memory:target
+    a owl:ObjectProperty ;
+    rdfs:label "target"@en ;
+    skos:definition "The agent, session, or action a decision episode chose."@en ;
+    memory:factReading "A decision episode chose Target."@en ;
+    rdfs:comment "Required on a RouteDecision, SpawnDecision, or ActionDecision episode, and allowed on no other record. A route names the agent that receives the work. A spawn names the new memory:Session. An action names a resource that describes the action outside memory. The target records the choice. Running the action, its approval, and its audit belong to the system that executes it. A record of the outcome is a later episode that cites the decision with memory:evidence."@en ;
+    rdfs:domain memory:TemporalAssertion .
 
 memory:lexical
     a owl:DatatypeProperty ;
@@ -341,7 +349,7 @@ memory:EpisodeTypeScheme
     rdfs:label "Episode type"@en ;
     skos:prefLabel "Episode type"@en ;
     skos:definition "What an episode contains."@en ;
-    rdfs:comment "Decision is content. It is not a speaker role and not a record kind."@en ;
+    rdfs:comment "Decision is content. It is not a speaker role and not a record kind. RouteDecision, SpawnDecision, and ActionDecision are narrower than Decision. An episode carries the most specific type that applies."@en ;
     skos:hasTopConcept memory:Decision .
 
 memory:Decision
@@ -351,7 +359,35 @@ memory:Decision
     rdfs:label "Decision"@en ;
     skos:prefLabel "Decision"@en ;
     skos:definition "An episode whose content is a decision."@en ;
-    rdfs:comment "Object of memory:episodeType. Not an object of memory:role, and not a record kind."@en .
+    skos:narrower memory:RouteDecision , memory:SpawnDecision , memory:ActionDecision ;
+    rdfs:comment "Object of memory:episodeType. Not an object of memory:role, and not a record kind. A decision episode records a choice made at a time. memory:evidence cites the episodes and beliefs it rests on, never a generated brief. memory:source may name an external resource that prompted it, such as an alert. memory:agent is the agent that decided. The person accountable for that agent is prov:actedOnBehalfOf on the agent, not a memory term. A later decision that replaces it supersedes it."@en .
+
+memory:RouteDecision
+    a skos:Concept ;
+    skos:inScheme memory:EpisodeTypeScheme ;
+    skos:broader memory:Decision ;
+    rdfs:label "Route decision"@en ;
+    skos:prefLabel "Route decision"@en ;
+    skos:definition "A decision to hand a request or task to an agent."@en ;
+    rdfs:comment "memory:target names the agent."@en .
+
+memory:SpawnDecision
+    a skos:Concept ;
+    skos:inScheme memory:EpisodeTypeScheme ;
+    skos:broader memory:Decision ;
+    rdfs:label "Spawn decision"@en ;
+    skos:prefLabel "Spawn decision"@en ;
+    skos:definition "A decision to start a new session."@en ;
+    rdfs:comment "memory:target names the new memory:Session. memory:evidence cites the episodes the session starts from. Records in the new session can cite this decision."@en .
+
+memory:ActionDecision
+    a skos:Concept ;
+    skos:inScheme memory:EpisodeTypeScheme ;
+    skos:broader memory:Decision ;
+    rdfs:label "Action decision"@en ;
+    skos:prefLabel "Action decision"@en ;
+    skos:definition "A decision to take an action with effects outside memory."@en ;
+    rdfs:comment "memory:target names the action. memory:policy names the policy that allowed it, and is required. A tool episode that reports the result cites this decision with memory:evidence."@en .
 
 # Typed generated documents; narrative and provenance are stored separately.
 memory:Brief
