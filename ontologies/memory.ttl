@@ -15,14 +15,14 @@
     dcterms:title "Agent Memory Ontology"@en ;
     dcterms:description "Memory-only terms for agent-memory records stored as temporal assertions."@en ;
     dcterms:issued "2026-11-03"^^xsd:date ;
-    owl:versionIRI <http://nova.dev/memory/0.1.0> ;
-    owl:versionInfo "0.1.0" ;
+    owl:versionIRI <http://nova.dev/memory/0.2.0> ;
+    owl:versionInfo "0.2.0" ;
     dcterms:license <https://creativecommons.org/licenses/by/4.0/> ;
     vann:preferredNamespacePrefix "memory" ;
     vann:preferredNamespaceUri "http://nova.dev/memory#" ;
     rdfs:seeAlso <http://nova.dev/temporal#> ;
     rdfs:comment "Valid time, transaction time, and supersession are temporal:validFrom, temporal:validUntil, temporal:validAt, temporal:recordedFrom, temporal:recordedUntil, temporal:recordedSequence, temporal:recordedUntilSequence, and temporal:supersedes. This vocabulary does not declare a second interval. The graph a proposition is about is temporal:scopeGraph. A proposition with no named domain graph uses temporal:DefaultGraph. Beliefs and proposals use the caller's domain graph. Episodes and procedures use temporal:DefaultGraph."@en ;
-    rdfs:comment "A memory record is a temporal:TemporalAssertion that also carries memory:kind. A later record is a new resource. It points at the closed record with temporal:supersedes and names the clock it closes with memory:closes. A world change closes memory:ValidTime. Transaction time may be a native commit sequence instead of temporal:recordedFrom. The RDF form of that sequence is temporal:recordedSequence and temporal:recordedUntilSequence. A memory record must not carry temporal:validAt."@en ;
+    rdfs:comment "A memory record is a temporal:TemporalAssertion that also carries memory:kind. A later record is a new resource. It points at the closed record with temporal:supersedes and names the clock it closes with temporal:closes. A world change closes temporal:ValidTime. A correction closes temporal:RecordedTime. Transaction time may be a native commit sequence instead of temporal:recordedFrom. The RDF form of that sequence is temporal:recordedSequence and temporal:recordedUntilSequence. A memory record must not carry temporal:validAt."@en ;
     skos:editorialNote "Alignments are rdfs:subPropertyOf only: memory:agent to prov:wasAttributedTo and dcterms:creator, memory:evidence to dcterms:references and prov:wasInfluencedBy, and memory:source to dcterms:source and prov:wasInfluencedBy. memory:TemporalAssertion is a subclass of prov:Entity and of temporal:TemporalAssertion. This file does not import PROV, Dublin Core, or OWL-Time, and it declares no owl:equivalentProperty."@en ;
     skos:editorialNote "temporal:supersedes is not a revised version of a record: a retraction closes a record. memory:lexical is not dcterms:description. memory:owner is not dcterms:creator or prov:wasAttributedTo. memory:policy is not dcterms:conformsTo and not prov:hadPlan. memory:session is not prov:wasGeneratedBy."@en ;
     skos:editorialNote "OWL-Time can be derived from the endpoint literals. Instant nodes are not stored. rdf:reifies is RDF 1.2, and some stores do not implement it yet. This vocabulary defines no other reification predicate."@en ;
@@ -49,30 +49,6 @@ memory:TemporalAssertion
     memory:factReading "A memory record is a temporal assertion."@en ;
     rdfs:comment "The stored rdf:type is temporal:TemporalAssertion. memory:kind is what makes that assertion a memory record. memory:TemporalAssertion is that class. Episode, Belief, Retraction, Procedure, Proposal, SessionBrief, and TopicBrief are not classes of the record. A memory record is an interval: it has temporal:validFrom. It must not carry temporal:validAt together with temporal:validFrom, and it must not be instant-only. temporal:validAt remains available on a temporal assertion that is a single instant."@en ;
     rdfs:comment "rdf:reifies links the record to one triple term. That predicate is RDF 1.2, and some stores do not implement it yet. Valid time is temporal:validFrom and temporal:validUntil. Transaction time is temporal:recordedFrom when the store has a datetime; a native commit sequence satisfies it when the literal is absent. temporal:recordedSequence is the RDF form of that sequence for export. An in-process write may omit it when the log already stores the sequence."@en .
-
-memory:Clock
-    a owl:Class ;
-    rdfs:label "Clock"@en ;
-    skos:definition "One of the two time coordinates a superseding record can close."@en .
-
-memory:ValidTime
-    a memory:Clock , owl:NamedIndividual ;
-    rdfs:label "Valid time"@en ;
-    skos:definition "The clock of when a statement holds in the world."@en .
-
-memory:RecordedTime
-    a memory:Clock , owl:NamedIndividual ;
-    rdfs:label "Recorded time"@en ;
-    skos:definition "The clock of when the system held a record."@en .
-
-memory:closes
-    a owl:ObjectProperty ;
-    rdfs:label "closes"@en ;
-    skos:definition "The clock or clocks a superseding record closes."@en ;
-    memory:factReading "A memory record closes Clock."@en ;
-    rdfs:comment "A memory record with temporal:supersedes must name the clock or clocks it closes. Domain temporal records do not carry memory:closes. An ordinary supersession still closes valid time: it is a world change. The closed end is temporal:validUntil on the earlier record, or it is derived from the successor's temporal:validFrom. A domain record that supersedes a memory record and carries no memory:closes is still a world change: it closes valid time, and it is not rejected. A world change closes memory:ValidTime. A correction that closes recorded time is signaled only by memory:closes memory:RecordedTime. Domain records do not have that marker, so they cannot mean the earlier statement was a mistake. Both clocks are allowed when a memory record closes both. A retraction still must supersede and still must close at least one clock. An asserted temporal:validUntil or temporal:recordedUntil on the earlier record, if present, must agree with memory:closes. The shapes do not check that agreement, because the end is on the other record. This marker is how a store derives which end to close. memory:closes is only legal on a memory record."@en ;
-    rdfs:domain memory:TemporalAssertion ;
-    rdfs:range memory:Clock .
 
 memory:kind
     a owl:ObjectProperty ;
@@ -280,7 +256,7 @@ memory:Belief
     rdfs:label "Belief"@en ;
     skos:prefLabel "Belief"@en ;
     skos:definition "A domain triple held as a temporal assertion about a scope graph."@en ;
-    rdfs:comment "memory:evidence cites one or more episodes. A functional replacement closes the previous open belief by temporal:supersedes and memory:closes memory:ValidTime."@en .
+    rdfs:comment "memory:evidence cites one or more episodes. A functional replacement closes the previous open belief by temporal:supersedes and temporal:closes temporal:ValidTime."@en .
 
 memory:Retraction
     a skos:Concept ;
@@ -289,7 +265,7 @@ memory:Retraction
     rdfs:label "Retraction"@en ;
     skos:prefLabel "Retraction"@en ;
     skos:definition "A new record that supersedes an earlier memory record."@en ;
-    rdfs:comment "The record reifies the triple being retracted. It uses temporal:supersedes to point at the record it closes. memory:closes says which clock it closes, even when the store derives an end from the newer record's start. An asserted end on that earlier record, if present, must agree with memory:closes. A retraction has no memory:lexical."@en .
+    rdfs:comment "The record reifies the triple being retracted. It uses temporal:supersedes to point at the record it closes. temporal:closes says which clock it closes, even when the store derives an end from the newer record's start. An asserted end on that earlier record, if present, must agree with temporal:closes. A retraction has no memory:lexical."@en .
 
 memory:Procedure
     a skos:Concept ;
@@ -307,7 +283,7 @@ memory:Proposal
     rdfs:label "Proposal"@en ;
     skos:prefLabel "Proposal"@en ;
     skos:definition "A belief-shaped record that is not yet confirmed."@en ;
-    rdfs:comment "Confirmation writes a belief that cites the proposal's evidence, then supersedes the proposal and closes memory:ValidTime."@en .
+    rdfs:comment "Confirmation writes a belief that cites the proposal's evidence, then supersedes the proposal and closes temporal:ValidTime."@en .
 
 memory:RoleScheme
     a skos:ConceptScheme ;

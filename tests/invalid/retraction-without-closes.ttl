@@ -1,5 +1,5 @@
 # Existing rule: a retraction names the clock it closes.
-# expect: A retraction has memory:closes at least once.
+# expect: A retraction has temporal:closes at least once.
 # expect: A record that supersedes another must say which clock it closes.
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .

@@ -183,3 +183,20 @@ temporal:SequenceEndRequiresStartShape
         [ sh:path temporal:recordedUntilSequence ; sh:maxCount 0 ]
         [ sh:path temporal:recordedSequence ; sh:minCount 1 ]
     ) .
+
+temporal:ClosesShape
+    a sh:NodeShape ;
+    sh:targetSubjectsOf temporal:closes ;
+    rdfs:label "Closing record names a clock"@en ;
+    rdfs:comment "Applies to every record that carries temporal:closes, whether or not it is a memory record. Whether a stored end on the earlier record agrees with the closing record is a store check, not a SHACL check, because that end is on the other record."@en ;
+    sh:property [
+        sh:path temporal:closes ;
+        sh:maxCount 2 ;
+        sh:in ( temporal:ValidTime temporal:RecordedTime ) ;
+        sh:message "closes is ValidTime, RecordedTime, or both."@en ;
+    ] ;
+    sh:property [
+        sh:path temporal:supersedes ;
+        sh:minCount 1 ;
+        sh:message "A record that closes a clock must supersede the record it closes."@en ;
+    ] .

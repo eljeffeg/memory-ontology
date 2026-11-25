@@ -27,5 +27,5 @@ ex:retraction-1 a temporal:TemporalAssertion ;
     rdf:reifies <<( ex:release ex:status ex:planned )>> ;
     memory:kind memory:Retraction ;
     temporal:supersedes ex:belief-1 ;
-    memory:closes memory:RecordedTime ;
+    temporal:closes temporal:RecordedTime ;
     temporal:validFrom "2026-11-01T10:00:00Z"^^xsd:dateTimeStamp .

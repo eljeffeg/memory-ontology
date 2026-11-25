@@ -12,7 +12,7 @@ memory:TemporalAssertionShape
     rdfs:label "Temporal assertion shape"@en ;
     rdfs:comment "This shape requires rdf:type temporal:TemporalAssertion. A memory record with no type, or typed only memory:TemporalAssertion, fails that check. A record that has the temporal type is also validated by the temporal shape: one reified triple, no temporal:validAt beside temporal:validFrom, and the recordedSequence datatype. This shape does not repeat those checks and does not sh:node them."@en ;
     rdfs:comment "temporal:recordedFrom is optional. A native commit sequence satisfies transaction time when that literal is absent. temporal:recordedSequence is not required on an in-process write."@en ;
-    rdfs:comment "Whether memory:closes agrees with an asserted temporal:validUntil or temporal:recordedUntil on the earlier record is a store check, not a SHACL check, because that end is on the other record."@en ;
+    rdfs:comment "Whether temporal:closes agrees with an asserted temporal:validUntil or temporal:recordedUntil on the earlier record is a store check, not a SHACL check, because that end is on the other record."@en ;
     rdfs:comment "An absent session is part of application identity. It is not a graph constraint."@en ;
     rdfs:comment "A record may cite several episodes. Each object is one episode record."@en ;
     sh:property [
@@ -114,12 +114,6 @@ memory:TemporalAssertionShape
             ]
         ) ;
         sh:message "confidence is an optional value from 0 to 1, as xsd:decimal or xsd:integer."@en ;
-    ] ;
-    sh:property [
-        sh:path memory:closes ;
-        sh:maxCount 2 ;
-        sh:in ( memory:ValidTime memory:RecordedTime ) ;
-        sh:message "closes is ValidTime, RecordedTime, or both."@en ;
     ] ;
     sh:property [
         sh:path memory:lexical ;
@@ -340,11 +334,11 @@ memory:RetractionClosesClockShape
     a sh:NodeShape ;
     sh:targetSubjectsOf memory:kind ;
     rdfs:label "Retraction closes a clock"@en ;
-    rdfs:comment "Whether memory:closes agrees with an asserted temporal:validUntil or temporal:recordedUntil on the earlier record is a store check, not a SHACL check, because that end is on the other record."@en ;
-    sh:message "A retraction has memory:closes at least once."@en ;
+    rdfs:comment "Whether temporal:closes agrees with an asserted temporal:validUntil or temporal:recordedUntil on the earlier record is a store check, not a SHACL check, because that end is on the other record."@en ;
+    sh:message "A retraction has temporal:closes at least once."@en ;
     sh:or (
         [ sh:not [ sh:path memory:kind ; sh:hasValue memory:Retraction ] ]
-        [ sh:path memory:closes ; sh:minCount 1 ]
+        [ sh:path temporal:closes ; sh:minCount 1 ]
     ) .
 
 memory:RetractionSupersedesShape
@@ -361,15 +355,11 @@ memory:SupersedesClosesClockShape
     a sh:NodeShape ;
     sh:targetSubjectsOf memory:kind ;
     rdfs:label "Supersession names a clock"@en ;
-    rdfs:comment "A domain record is not a target. A domain record that supersedes a memory record and carries no memory:closes is a world change: it closes valid time, and this shape does not reject it."@en ;
+    rdfs:comment "A domain record is not a target. A domain record that supersedes and carries no temporal:closes is a world change: it closes valid time, and this shape does not reject it. The allowed clock values are checked by temporal:ClosesShape."@en ;
     sh:message "A record that supersedes another must say which clock it closes."@en ;
     sh:or (
         [ sh:path temporal:supersedes ; sh:maxCount 0 ]
-        [
-            sh:path memory:closes ;
-            sh:minCount 1 ;
-            sh:in ( memory:ValidTime memory:RecordedTime )
-        ]
+        [ sh:path temporal:closes ; sh:minCount 1 ]
     ) .
 
 memory:RetractionHasNoLexicalShape
@@ -381,16 +371,6 @@ memory:RetractionHasNoLexicalShape
         [ sh:not [ sh:path memory:kind ; sh:hasValue memory:Retraction ] ]
         [ sh:path memory:lexical ; sh:maxCount 0 ]
     ) .
-
-memory:ClosesRequiresKindShape
-    a sh:NodeShape ;
-    sh:targetSubjectsOf memory:closes ;
-    rdfs:label "Closes requires a memory record"@en ;
-    sh:property [
-        sh:path memory:kind ;
-        sh:minCount 1 ;
-        sh:message "memory:closes is only legal on a memory record. A domain record with memory:closes memory:RecordedTime is not a recorded-time correction."@en ;
-    ] .
 
 memory:BriefPropositionShape
     a sh:NodeShape ;
