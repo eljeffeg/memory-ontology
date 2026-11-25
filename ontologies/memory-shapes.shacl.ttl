@@ -374,18 +374,23 @@ memory:RetractionHasNoLexicalShape
 
 memory:BriefPropositionShape
     a sh:NodeShape ;
-    sh:targetSubjectsOf rdf:reifies ;
+    sh:targetSubjectsOf rdf:reifies , rdf:predicate ;
     rdfs:label "Brief proposition"@en ;
-    rdfs:comment "A brief record reifies a triple whose predicate is memory:brief. Its subject is the session or topic, and its object is the Markdown, as an xsd:string or an rdf:langString. Only a session brief or a topic brief reifies a memory:brief triple. A reifier with no memory:kind is not a memory record and is not checked."@en ;
+    rdfs:comment "A brief record reifies a triple whose predicate is memory:brief. Its subject is the session or topic, and its object is the Markdown, as an xsd:string or an rdf:langString. Only a session brief or a topic brief reifies a memory:brief triple. A reifier with no memory:kind is not a memory record and is not checked. The triple is read from either reification form: an rdf:reifies triple term, or rdf:predicate and rdf:object on the record."@en ;
     sh:sparql [
         a sh:SPARQLConstraint ;
         sh:message "A session brief or topic brief reifies a memory:brief triple, and no other memory record does."@en ;
         sh:prefixes memory:BriefShapePrefixes ;
         sh:select """
             SELECT $this WHERE {
-                $this memory:kind ?kind ;
-                    rdf:reifies ?triple .
-                BIND (PREDICATE(?triple) = memory:brief AS ?briefTriple)
+                $this memory:kind ?kind .
+                {
+                    $this rdf:reifies ?triple .
+                    BIND (PREDICATE(?triple) AS ?p)
+                } UNION {
+                    $this rdf:predicate ?p .
+                }
+                BIND (?p = memory:brief AS ?briefTriple)
                 BIND (?kind IN (memory:SessionBrief, memory:TopicBrief) AS ?briefRecord)
                 FILTER (?briefTriple != ?briefRecord)
             }
@@ -397,9 +402,16 @@ memory:BriefPropositionShape
         sh:prefixes memory:BriefShapePrefixes ;
         sh:select """
             SELECT $this WHERE {
-                $this rdf:reifies ?triple .
-                FILTER (PREDICATE(?triple) = memory:brief)
-                FILTER (!isLiteral(OBJECT(?triple)) || !(datatype(OBJECT(?triple)) IN (xsd:string, rdf:langString)))
+                {
+                    $this rdf:reifies ?triple .
+                    BIND (PREDICATE(?triple) AS ?p)
+                    BIND (OBJECT(?triple) AS ?o)
+                } UNION {
+                    $this rdf:predicate ?p ;
+                        rdf:object ?o .
+                }
+                FILTER (?p = memory:brief)
+                FILTER (!isLiteral(?o) || !(datatype(?o) IN (xsd:string, rdf:langString)))
             }
         """ ;
     ] .

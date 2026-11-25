@@ -41,7 +41,7 @@ A reasoner that supports the relevant axioms can infer, for example, that the co
 
 ## Time and memory
 
-A `temporal:TemporalAssertion` is an identifiable record that uses RDF 1.2 `rdf:reifies` to refer to a triple term. The referenced triple is not automatically asserted as an ordinary fact. Valid time describes when that fact holds; recorded time describes when a store held the record. Valid-time intervals are half-open: the start is inclusive and the end exclusive. An instant uses `temporal:validAt` instead of interval endpoints.
+A `temporal:TemporalAssertion` is an identifiable record that refers to one triple. It uses RDF 1.2 `rdf:reifies` with a triple term or, in a store without triple terms, classic `rdf:subject`, `rdf:predicate`, and `rdf:object` on the record. The shapes accept either form, but not both on one record. The referenced triple is not automatically asserted as an ordinary fact. Valid time describes when that fact holds; recorded time describes when a store held the record. Valid-time intervals are half-open: the start is inclusive and the end exclusive. An instant uses `temporal:validAt` instead of interval endpoints.
 
 Memory records add memory:kind and other memory-specific properties to temporal assertions. They use intervals beginning with temporal:validFrom, not temporal:validAt. Superseding records are separate resources.
 
@@ -61,7 +61,7 @@ A domain record that supersedes and carries no `temporal:closes` is a supersessi
 
 ### Partial use
 
-You may use these property IRIs without the shapes. For example, a store without RDF 1.2 triple terms may reify with `rdf:subject`, `rdf:predicate`, and `rdf:object` and still use `temporal:validFrom`, `temporal:recordedFrom`, `temporal:supersedes`, and `temporal:closes` with the meanings given here. Such data does not conform to the shapes, which require `rdf:reifies`, so do not claim conformance for it. A store may keep recorded time as commit sequences rather than datetime literals; a portable RDF export must include the corresponding recorded-time coordinates. RDF 1.2 triple terms and rdf:reifies require compatible tooling.
+You may use these property IRIs without the shapes, with the meanings given here. A store without RDF 1.2 triple terms can still conform: reify with `rdf:subject`, `rdf:predicate`, and `rdf:object` on the record instead of `rdf:reifies`. Typing the record `rdf:Statement` is optional. Data that does not pass the shapes should not claim conformance. A store may keep recorded time as commit sequences rather than datetime literals; a portable RDF export must include the corresponding recorded-time coordinates. RDF 1.2 triple terms and rdf:reifies require compatible tooling.
 
 Curated knowledge from outside memory, such as published reports or third-party briefs, is not a memory record. Keep it in its own graph, for example as `work:Document` resources linked to topics with `work:about`. A belief, procedure, proposal, or retraction can name such a resource with `memory:source`. `memory:evidence` stays reserved for memory records, so a reader can tell what was observed in a session from what came from an outside source.
 

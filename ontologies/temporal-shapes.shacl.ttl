@@ -4,19 +4,33 @@
 @prefix sh: <http://www.w3.org/ns/shacl#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
+temporal:ReificationShape
+    a sh:NodeShape ;
+    sh:targetClass temporal:TemporalAssertion ;
+    rdfs:label "Reification shape"@en ;
+    rdfs:comment "A record reifies its triple in one of two forms. The RDF 1.2 form is one rdf:reifies whose object is a triple term. The classic form is one rdf:subject, one rdf:predicate, and one rdf:object on the record itself, for stores without triple terms. A record uses one form, never both. SHACL core cannot require the object of rdf:reifies to be an RDF 1.2 triple term. SHACL 1.2 node-kind for triple terms is not used here."@en ;
+    sh:xone (
+        [
+            sh:property [ sh:path rdf:reifies ; sh:minCount 1 ; sh:maxCount 1 ] ;
+            sh:property [ sh:path rdf:subject ; sh:maxCount 0 ] ;
+            sh:property [ sh:path rdf:predicate ; sh:maxCount 0 ] ;
+            sh:property [ sh:path rdf:object ; sh:maxCount 0 ]
+        ]
+        [
+            sh:property [ sh:path rdf:reifies ; sh:maxCount 0 ] ;
+            sh:property [ sh:path rdf:subject ; sh:minCount 1 ; sh:maxCount 1 ] ;
+            sh:property [ sh:path rdf:predicate ; sh:minCount 1 ; sh:maxCount 1 ] ;
+            sh:property [ sh:path rdf:object ; sh:minCount 1 ; sh:maxCount 1 ]
+        ]
+    ) ;
+    sh:message "A temporal assertion reifies one triple, either with one rdf:reifies or with one each of rdf:subject, rdf:predicate and rdf:object, not both."@en .
+
 temporal:TemporalAssertionShape
     a sh:NodeShape ;
     sh:targetClass temporal:TemporalAssertion ;
     rdfs:label "Temporal assertion shape"@en ;
     rdfs:comment "Applies to a temporal assertion, including a memory record stored as temporal:TemporalAssertion. Memory-only rules live in the memory shapes and target subjects of memory:kind. This shape is not pulled in with sh:node."@en ;
-    rdfs:comment "SHACL core cannot require the object of rdf:reifies to be an RDF 1.2 triple term. SHACL 1.2 node-kind for triple terms is not used here."@en ;
     rdfs:comment "temporal:recordedSequence and temporal:recordedUntilSequence are optional. An in-process write may keep the commit sequence in the transaction log and omit them. An RDF export of a store whose transaction time is a commit sequence must include the integers."@en ;
-    sh:property [
-        sh:path rdf:reifies ;
-        sh:minCount 1 ;
-        sh:maxCount 1 ;
-        sh:message "A temporal assertion reifies one triple."@en ;
-    ] ;
     sh:property [
         sh:path temporal:validFrom ;
         sh:maxCount 1 ;
