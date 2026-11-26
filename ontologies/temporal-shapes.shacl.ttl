@@ -8,7 +8,7 @@ temporal:ReificationShape
     a sh:NodeShape ;
     sh:targetClass temporal:TemporalAssertion ;
     rdfs:label "Reification shape"@en ;
-    rdfs:comment "A record reifies its triple in one of two forms. The RDF 1.2 form is one rdf:reifies whose object is a triple term. The classic form is one rdf:subject, one rdf:predicate, and one rdf:object on the record itself, for stores without triple terms. A record uses one form, never both. SHACL core cannot require the object of rdf:reifies to be an RDF 1.2 triple term. SHACL 1.2 node-kind for triple terms is not used here."@en ;
+    rdfs:comment "A record reifies its triple in one of two forms, unless it is a temporal:Closure, which reifies nothing. The RDF 1.2 form is one rdf:reifies whose object is a triple term. The classic form is one rdf:subject, one rdf:predicate, and one rdf:object on the record itself, for stores without triple terms. A record uses one form, never both. SHACL core cannot require the object of rdf:reifies to be an RDF 1.2 triple term. SHACL 1.2 node-kind for triple terms is not used here."@en ;
     sh:xone (
         [
             sh:property [ sh:path rdf:reifies ; sh:minCount 1 ; sh:maxCount 1 ] ;
@@ -22,8 +22,27 @@ temporal:ReificationShape
             sh:property [ sh:path rdf:predicate ; sh:minCount 1 ; sh:maxCount 1 ] ;
             sh:property [ sh:path rdf:object ; sh:minCount 1 ; sh:maxCount 1 ]
         ]
+        [
+            sh:property [ sh:path rdf:type ; sh:hasValue temporal:Closure ] ;
+            sh:property [ sh:path rdf:reifies ; sh:maxCount 0 ] ;
+            sh:property [ sh:path rdf:subject ; sh:maxCount 0 ] ;
+            sh:property [ sh:path rdf:predicate ; sh:maxCount 0 ] ;
+            sh:property [ sh:path rdf:object ; sh:maxCount 0 ]
+        ]
     ) ;
-    sh:message "A temporal assertion reifies one triple, either with one rdf:reifies or with one each of rdf:subject, rdf:predicate and rdf:object, not both."@en .
+    sh:message "A temporal assertion reifies one triple, either with one rdf:reifies or with one each of rdf:subject, rdf:predicate and rdf:object, not both. Only a temporal:Closure reifies no triple."@en .
+
+temporal:ClosureShape
+    a sh:NodeShape ;
+    sh:targetClass temporal:Closure ;
+    rdfs:label "Closure shape"@en ;
+    rdfs:comment "A closure ends the record it supersedes and asserts nothing. SHACL reads asserted types only, so a closure is typed both temporal:TemporalAssertion and temporal:Closure."@en ;
+    sh:property [ sh:path rdf:reifies ; sh:maxCount 0 ; sh:message "A closure reifies no triple."@en ] ;
+    sh:property [ sh:path rdf:subject ; sh:maxCount 0 ; sh:message "A closure reifies no triple."@en ] ;
+    sh:property [ sh:path rdf:predicate ; sh:maxCount 0 ; sh:message "A closure reifies no triple."@en ] ;
+    sh:property [ sh:path rdf:object ; sh:maxCount 0 ; sh:message "A closure reifies no triple."@en ] ;
+    sh:property [ sh:path temporal:supersedes ; sh:minCount 1 ; sh:message "A closure supersedes the record it ends."@en ] ;
+    sh:property [ sh:path temporal:closes ; sh:minCount 1 ; sh:message "A closure names the clock it closes."@en ] .
 
 temporal:TemporalAssertionShape
     a sh:NodeShape ;

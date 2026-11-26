@@ -1,5 +1,5 @@
 # A record must not use both reification forms.
-# expect: A temporal assertion reifies one triple, either with one rdf:reifies or with one each of rdf:subject, rdf:predicate and rdf:object, not both.
+# expect: A temporal assertion reifies one triple, either with one rdf:reifies or with one each of rdf:subject, rdf:predicate and rdf:object, not both. Only a temporal:Closure reifies no triple.
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix prov: <http://www.w3.org/ns/prov#> .

@@ -53,15 +53,25 @@ A record is never ended by editing it. A new record points at it with `temporal:
 |---|---|---|
 | Supersession | `temporal:ValidTime` | The world changed. The earlier statement was true until the closing record's `temporal:validFrom`. |
 | Correction | `temporal:RecordedTime` | The earlier record was a mistake. It was held until the closing record was recorded, and it was never true in the world. |
-| Retraction | `temporal:RecordedTime`, `temporal:ValidTime`, or both | A `memory:Retraction` withdraws a belief without asserting a replacement. |
+| Closure | `temporal:ValidTime`, `temporal:RecordedTime`, or both | A `temporal:Closure` ends the earlier record and asserts nothing in its place. It reifies no triple. |
+| Retraction | `temporal:RecordedTime`, `temporal:ValidTime`, or both | A `memory:Retraction` is a closure that withdraws a memory record. |
 
-A domain record that supersedes and carries no `temporal:closes` is a supersession. A memory record must name the clock. Domain records and memory records may both carry a correction.
+A domain record that supersedes and carries no `temporal:closes` is a supersession. A closure and a memory record must name the clock. Domain records and memory records may both carry a correction.
 
-`temporal:validUntil` and `temporal:recordedUntil` on the earlier record are stored copies of an end, derived from the closing record. A query as of recorded time *t* takes ends only from closing records recorded at or before *t*, and ignores a stored copy whose closing record was recorded after *t*. Otherwise a knowledge cut taken before the close was recorded would see the close. See `tests/valid/supersession-closes-valid-time.ttl`, `correction-closes-recorded-time.ttl`, `retraction-closes-recorded-time.ttl`, and the `domain-*` fixtures.
+A closure is typed both `temporal:TemporalAssertion` and `temporal:Closure`, because SHACL reads asserted types only. Do not restate the old triple to end it: that would assert the triple again.
+
+```turtle
+ex:price-end a temporal:TemporalAssertion , temporal:Closure ;
+    temporal:supersedes ex:price-1 ;
+    temporal:closes temporal:ValidTime ;
+    temporal:validFrom "2026-12-01T00:00:00Z"^^xsd:dateTimeStamp .
+```
+
+`temporal:validUntil` and `temporal:recordedUntil` on the earlier record are stored copies of an end, derived from the closing record. A query as of recorded time *t* takes ends only from closing records recorded at or before *t*, and ignores a stored copy whose closing record was recorded after *t*. Otherwise a knowledge cut taken before the close was recorded would see the close. See `tests/valid/supersession-closes-valid-time.ttl`, `correction-closes-recorded-time.ttl`, `retraction-closes-recorded-time.ttl`, `domain-closure-ends-valid-time.ttl`, and the other `domain-*` fixtures.
 
 ### Partial use
 
-You may use these property IRIs without the shapes, with the meanings given here. A store without RDF 1.2 triple terms can still conform: reify with `rdf:subject`, `rdf:predicate`, and `rdf:object` on the record instead of `rdf:reifies`. Typing the record `rdf:Statement` is optional. Data that does not pass the shapes should not claim conformance. A store may keep recorded time as commit sequences rather than datetime literals; a portable RDF export must include the corresponding recorded-time coordinates. RDF 1.2 triple terms and rdf:reifies require compatible tooling.
+You may use these property IRIs without the shapes, with the meanings given here. A store without RDF 1.2 triple terms can still conform: reify with `rdf:subject`, `rdf:predicate`, and `rdf:object` on the record instead of `rdf:reifies`. A closure uses neither form. Typing the record `rdf:Statement` is optional. Data that does not pass the shapes should not claim conformance. A store may keep recorded time as commit sequences rather than datetime literals; a portable RDF export must include the corresponding recorded-time coordinates. RDF 1.2 triple terms and rdf:reifies require compatible tooling.
 
 Curated knowledge from outside memory, such as published reports or third-party briefs, is not a memory record. Keep it in its own graph, for example as `work:Document` resources linked to topics with `work:about`. A belief, procedure, proposal, or retraction can name such a resource with `memory:source`. `memory:evidence` stays reserved for memory records, so a reader can tell what was observed in a session from what came from an outside source.
 

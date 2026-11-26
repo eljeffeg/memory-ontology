@@ -264,8 +264,8 @@ memory:Retraction
     skos:topConceptOf memory:KindScheme ;
     rdfs:label "Retraction"@en ;
     skos:prefLabel "Retraction"@en ;
-    skos:definition "A new record that supersedes an earlier memory record."@en ;
-    rdfs:comment "The record reifies the triple being retracted. It uses temporal:supersedes to point at the record it closes. temporal:closes says which clock it closes, even when the store derives an end from the newer record's start. An asserted end on that earlier record, if present, must agree with temporal:closes. A retraction has no memory:lexical."@en .
+    skos:definition "A temporal:Closure that ends an earlier memory record and asserts nothing in its place."@en ;
+    rdfs:comment "The record is typed temporal:Closure and reifies no triple. It uses temporal:supersedes to point at the record it closes. temporal:closes says which clock it closes, even when the store derives an end from the newer record's start. An asserted end on that earlier record, if present, must agree with temporal:closes. A retraction has no memory:lexical."@en .
 
 memory:Procedure
     a skos:Concept ;
