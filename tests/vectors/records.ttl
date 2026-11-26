@@ -1,0 +1,263 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix temporal: <http://nova.dev/temporal#> .
+@prefix memory: <http://nova.dev/memory#> .
+@prefix ex: <https://example.org/> .
+
+# Records for the bitemporal conformance cases in cases.ttl.
+#
+# Seventeen beliefs (ex:v1 to ex:v17) and the records that close them. A close
+# with a successor is the successor belief itself. A close with no successor is
+# a memory:Retraction. Every closing record has its own temporal:recordedFrom,
+# which is what a knowledge cut reads.
+#
+# Translated from DreamLab-AI/ontomark conformance/temporal/vectors-v2.json
+# (release v0.10.0). See README.md in this directory for the mapping.
+
+ex:curator a prov:Agent .
+
+ex:review a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:curator ex:said ex:catalogue-reviewed )>> ;
+    memory:kind memory:Episode ;
+    memory:role memory:User ;
+    temporal:validFrom "2026-02-01T00:00:00Z"^^xsd:dateTimeStamp ;
+    temporal:recordedFrom "2026-02-01T00:00:00Z"^^xsd:dateTimeStamp .
+
+ex:v1 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:camera rdfs:subClassOf ex:device )>> ;
+    memory:kind memory:Belief ;
+    memory:evidence ex:review ;
+    temporal:validFrom "2026-03-01T09:00:00Z"^^xsd:dateTimeStamp ;
+    temporal:recordedFrom "2026-03-01T09:00:00Z"^^xsd:dateTimeStamp .
+
+ex:v2 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:camera rdfs:subClassOf ex:sensor )>> ;
+    memory:kind memory:Belief ;
+    memory:evidence ex:review ;
+    temporal:validFrom "2026-03-10T12:00:00Z"^^xsd:dateTimeStamp ;
+    temporal:recordedFrom "2026-03-10T12:00:00Z"^^xsd:dateTimeStamp .
+
+ex:v3 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:lens ex:isPartOf ex:camera )>> ;
+    memory:kind memory:Belief ;
+    memory:evidence ex:review ;
+    temporal:validFrom "2026-03-05T14:00:00Z"^^xsd:dateTimeStamp ;
+    temporal:recordedFrom "2026-03-05T18:00:00Z"^^xsd:dateTimeStamp .
+
+ex:v4 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:drone rdfs:subClassOf ex:aircraft )>> ;
+    memory:kind memory:Belief ;
+    memory:evidence ex:review ;
+    temporal:validFrom "2026-04-01T00:00:00Z"^^xsd:dateTimeStamp ;
+    temporal:recordedFrom "2026-04-01T00:00:00Z"^^xsd:dateTimeStamp .
+
+ex:v5 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:drone rdfs:subClassOf ex:uav )>> ;
+    memory:kind memory:Belief ;
+    memory:evidence ex:review ;
+    memory:agent ex:curator ;
+    temporal:supersedes ex:v4 ;
+    temporal:closes temporal:ValidTime ;
+    temporal:validFrom "2026-04-10T00:00:00Z"^^xsd:dateTimeStamp ;
+    temporal:recordedFrom "2026-04-20T00:00:00Z"^^xsd:dateTimeStamp .
+
+ex:v6 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:gimbal ex:isPartOf ex:lens )>> ;
+    memory:kind memory:Belief ;
+    memory:evidence ex:review ;
+    temporal:validFrom "2026-06-01T00:00:00Z"^^xsd:dateTimeStamp ;
+    temporal:recordedFrom "2026-06-02T00:00:00Z"^^xsd:dateTimeStamp .
+
+ex:v7 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:gimbal ex:isPartOf ex:camera )>> ;
+    memory:kind memory:Belief ;
+    memory:evidence ex:review ;
+    memory:agent ex:curator ;
+    temporal:supersedes ex:v6 ;
+    temporal:closes temporal:RecordedTime ;
+    temporal:validFrom "2026-06-01T00:00:00Z"^^xsd:dateTimeStamp ;
+    temporal:recordedFrom "2026-07-01T00:00:00Z"^^xsd:dateTimeStamp .
+
+ex:v8 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:tripod rdfs:subClassOf ex:sensor )>> ;
+    memory:kind memory:Belief ;
+    memory:evidence ex:review ;
+    temporal:validFrom "2026-09-01T00:00:00Z"^^xsd:dateTimeStamp ;
+    temporal:recordedFrom "2026-09-01T00:00:00Z"^^xsd:dateTimeStamp .
+
+ex:v9 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:lidar rdfs:subClassOf ex:sensor )>> ;
+    memory:kind memory:Belief ;
+    memory:evidence ex:review ;
+    temporal:validFrom "2026-10-01T00:00:00Z"^^xsd:dateTimeStamp ;
+    temporal:recordedFrom "2026-10-01T00:00:00Z"^^xsd:dateTimeStamp .
+
+ex:v10 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:radar rdfs:subClassOf ex:sensor )>> ;
+    memory:kind memory:Belief ;
+    memory:evidence ex:review ;
+    temporal:validFrom "2026-12-01T00:00:00Z"^^xsd:dateTimeStamp ;
+    temporal:recordedFrom "2026-12-01T00:00:00Z"^^xsd:dateTimeStamp .
+
+ex:v11 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:radar rdfs:subClassOf ex:sensor )>> ;
+    memory:kind memory:Belief ;
+    memory:evidence ex:review ;
+    temporal:validFrom "2026-12-01T00:00:00Z"^^xsd:dateTimeStamp ;
+    temporal:recordedFrom "2026-12-10T00:00:00Z"^^xsd:dateTimeStamp .
+
+ex:v12 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:sonar rdfs:subClassOf ex:sensor )>> ;
+    memory:kind memory:Belief ;
+    memory:evidence ex:review ;
+    temporal:validFrom "2027-01-01T00:00:00Z"^^xsd:dateTimeStamp ;
+    temporal:recordedFrom "2027-01-01T00:00:00Z"^^xsd:dateTimeStamp .
+
+ex:v13 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:thermal-camera rdfs:subClassOf ex:device )>> ;
+    memory:kind memory:Belief ;
+    memory:evidence ex:review ;
+    temporal:validFrom "2031-01-01T00:00:00Z"^^xsd:dateTimeStamp ;
+    temporal:recordedFrom "2031-01-01T00:00:00Z"^^xsd:dateTimeStamp .
+
+ex:v14 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:thermal-camera rdfs:subClassOf ex:sensor )>> ;
+    memory:kind memory:Belief ;
+    memory:evidence ex:review ;
+    temporal:validFrom "2031-02-01T00:00:00Z"^^xsd:dateTimeStamp ;
+    temporal:recordedFrom "2031-02-01T00:00:00Z"^^xsd:dateTimeStamp .
+
+ex:v15 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:rangefinder rdfs:subClassOf ex:sensor )>> ;
+    memory:kind memory:Belief ;
+    memory:evidence ex:review ;
+    temporal:validFrom "2031-01-01T00:00:00Z"^^xsd:dateTimeStamp ;
+    temporal:recordedFrom "2031-01-01T00:00:00Z"^^xsd:dateTimeStamp .
+
+ex:v16 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:rangefinder rdfs:subClassOf ex:sensor )>> ;
+    memory:kind memory:Belief ;
+    memory:evidence ex:review ;
+    temporal:validFrom "2031-01-01T00:00:00Z"^^xsd:dateTimeStamp ;
+    temporal:recordedFrom "2031-06-01T00:00:00Z"^^xsd:dateTimeStamp .
+
+ex:v17 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:altimeter rdfs:subClassOf ex:sensor )>> ;
+    memory:kind memory:Belief ;
+    memory:evidence ex:review ;
+    temporal:validFrom "2031-01-01T00:00:00Z"^^xsd:dateTimeStamp ;
+    temporal:recordedFrom "2031-01-01T00:00:00Z"^^xsd:dateTimeStamp .
+
+# Closes with no successor.
+
+# v1 was recorded with its end already known.
+ex:x-v1 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:camera rdfs:subClassOf ex:device )>> ;
+    memory:kind memory:Retraction ;
+    memory:agent ex:curator ;
+    temporal:supersedes ex:v1 ;
+    temporal:closes temporal:ValidTime ;
+    temporal:validFrom "2026-03-10T12:00:00Z"^^xsd:dateTimeStamp ;
+    temporal:recordedFrom "2026-03-01T09:00:00Z"^^xsd:dateTimeStamp .
+
+# v8 is corrected; recorded 2026-09-15T00:00:00Z.
+ex:x-c3 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:tripod rdfs:subClassOf ex:sensor )>> ;
+    memory:kind memory:Retraction ;
+    memory:agent ex:curator ;
+    temporal:supersedes ex:v8 ;
+    temporal:closes temporal:RecordedTime ;
+    temporal:validFrom "2026-09-01T00:00:00Z"^^xsd:dateTimeStamp ;
+    temporal:recordedFrom "2026-09-15T00:00:00Z"^^xsd:dateTimeStamp .
+
+# v9 ends and is withdrawn; recorded 2026-11-01T00:00:00Z.
+ex:x-c4 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:lidar rdfs:subClassOf ex:sensor )>> ;
+    memory:kind memory:Retraction ;
+    memory:agent ex:curator ;
+    temporal:supersedes ex:v9 ;
+    temporal:closes temporal:ValidTime , temporal:RecordedTime ;
+    temporal:validFrom "2026-10-20T00:00:00Z"^^xsd:dateTimeStamp ;
+    temporal:recordedFrom "2026-11-01T00:00:00Z"^^xsd:dateTimeStamp .
+
+# v10 is corrected; recorded 2026-12-05T00:00:00Z.
+ex:x-c5 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:radar rdfs:subClassOf ex:sensor )>> ;
+    memory:kind memory:Retraction ;
+    memory:agent ex:curator ;
+    temporal:supersedes ex:v10 ;
+    temporal:closes temporal:RecordedTime ;
+    temporal:validFrom "2026-12-01T00:00:00Z"^^xsd:dateTimeStamp ;
+    temporal:recordedFrom "2026-12-05T00:00:00Z"^^xsd:dateTimeStamp .
+
+# v12 ends; recorded 2027-01-15T00:00:00Z.
+ex:x-c6 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:sonar rdfs:subClassOf ex:sensor )>> ;
+    memory:kind memory:Retraction ;
+    memory:agent ex:curator ;
+    temporal:supersedes ex:v12 ;
+    temporal:closes temporal:ValidTime ;
+    temporal:validFrom "2027-02-01T00:00:00Z"^^xsd:dateTimeStamp ;
+    temporal:recordedFrom "2027-01-15T00:00:00Z"^^xsd:dateTimeStamp .
+
+# v12 ends; recorded 2027-01-20T00:00:00Z.
+ex:x-c7 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:sonar rdfs:subClassOf ex:sensor )>> ;
+    memory:kind memory:Retraction ;
+    memory:agent ex:curator ;
+    temporal:supersedes ex:v12 ;
+    temporal:closes temporal:ValidTime ;
+    temporal:validFrom "2027-03-01T00:00:00Z"^^xsd:dateTimeStamp ;
+    temporal:recordedFrom "2027-01-20T00:00:00Z"^^xsd:dateTimeStamp .
+
+# v5 ends; recorded 2026-04-20T00:00:00Z.
+ex:x-c8 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:drone rdfs:subClassOf ex:uav )>> ;
+    memory:kind memory:Retraction ;
+    memory:agent ex:curator ;
+    temporal:supersedes ex:v5 ;
+    temporal:closes temporal:ValidTime ;
+    temporal:validFrom "2026-05-01T00:00:00Z"^^xsd:dateTimeStamp ;
+    temporal:recordedFrom "2026-04-20T00:00:00Z"^^xsd:dateTimeStamp .
+
+# v7 ends; recorded 2026-07-01T00:00:00Z.
+ex:x-c9 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:gimbal ex:isPartOf ex:camera )>> ;
+    memory:kind memory:Retraction ;
+    memory:agent ex:curator ;
+    temporal:supersedes ex:v7 ;
+    temporal:closes temporal:ValidTime ;
+    temporal:validFrom "2026-08-01T00:00:00Z"^^xsd:dateTimeStamp ;
+    temporal:recordedFrom "2026-07-01T00:00:00Z"^^xsd:dateTimeStamp .
+
+# v11 ends; recorded 2026-12-10T00:00:00Z.
+ex:x-c10 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:radar rdfs:subClassOf ex:sensor )>> ;
+    memory:kind memory:Retraction ;
+    memory:agent ex:curator ;
+    temporal:supersedes ex:v11 ;
+    temporal:closes temporal:ValidTime ;
+    temporal:validFrom "2026-12-20T00:00:00Z"^^xsd:dateTimeStamp ;
+    temporal:recordedFrom "2026-12-10T00:00:00Z"^^xsd:dateTimeStamp .
+
+# v17 ends; recorded 2031-03-01T00:00:00Z.
+ex:x-c11 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:altimeter rdfs:subClassOf ex:sensor )>> ;
+    memory:kind memory:Retraction ;
+    memory:agent ex:curator ;
+    temporal:supersedes ex:v17 ;
+    temporal:closes temporal:ValidTime ;
+    temporal:validFrom "2031-12-01T00:00:00Z"^^xsd:dateTimeStamp ;
+    temporal:recordedFrom "2031-03-01T00:00:00Z"^^xsd:dateTimeStamp .
+
+# v17 ends; recorded 2031-04-01T00:00:00Z.
+ex:x-c12 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:altimeter rdfs:subClassOf ex:sensor )>> ;
+    memory:kind memory:Retraction ;
+    memory:agent ex:curator ;
+    temporal:supersedes ex:v17 ;
+    temporal:closes temporal:ValidTime ;
+    temporal:validFrom "2031-09-01T00:00:00Z"^^xsd:dateTimeStamp ;
+    temporal:recordedFrom "2031-04-01T00:00:00Z"^^xsd:dateTimeStamp .

@@ -1,0 +1,19 @@
+# What each case in cases.ttl expects, in the same columns held.rq returns.
+# ?check is "holds" for a belief that must be returned, "end" for a belief that
+# must report ?end, and "no-end" for a belief that must report no end.
+
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX vec:  <https://example.org/vectors#>
+
+SELECT ?case ?label ?check ?record ?end
+WHERE {
+  ?case a vec:Case ; rdfs:label ?label .
+  OPTIONAL {
+    { ?case vec:expect ?record . BIND ("holds" AS ?check) }
+    UNION
+    { ?case vec:expectEnd [ vec:record ?record ; vec:end ?end ] . BIND ("end" AS ?check) }
+    UNION
+    { ?case vec:expectNoEnd ?record . BIND ("no-end" AS ?check) }
+  }
+}
+ORDER BY ?case ?check ?record

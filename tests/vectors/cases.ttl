@@ -1,0 +1,243 @@
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ex: <https://example.org/> .
+@prefix vec: <https://example.org/vectors#> .
+
+# Cases over records.ttl. Each asks which beliefs hold at valid time vec:validAt,
+# as known at recorded time vec:recordedAsOf. A case with no vec:recordedAsOf
+# uses everything recorded. vec:expect lists the beliefs that must be returned,
+# and no others. vec:expectEnd gives the valid-time end a returned belief must
+# report: the earliest end among the closing records the cut can see.
+# vec:expectNoEnd names a returned belief that must report no end.
+
+vec:case-01 a vec:Case ;
+    rdfs:label "before any belief" ;
+    vec:validAt "2026-02-28T00:00:00Z"^^xsd:dateTimeStamp .
+
+vec:case-02 a vec:Case ;
+    rdfs:label "start is inclusive" ;
+    vec:validAt "2026-03-01T09:00:00Z"^^xsd:dateTimeStamp ;
+    vec:expect ex:v1 .
+
+vec:case-03 a vec:Case ;
+    rdfs:label "inside v1's interval" ;
+    vec:validAt "2026-03-05T15:00:00Z"^^xsd:dateTimeStamp ;
+    vec:expect ex:v1 , ex:v3 .
+
+vec:case-04 a vec:Case ;
+    rdfs:label "end is exclusive: exactly one parent at the hand-over instant" ;
+    vec:validAt "2026-03-10T12:00:00Z"^^xsd:dateTimeStamp ;
+    vec:expect ex:v2 , ex:v3 .
+
+vec:case-05 a vec:Case ;
+    rdfs:label "one second before hand-over" ;
+    vec:validAt "2026-03-10T11:59:59Z"^^xsd:dateTimeStamp ;
+    vec:expect ex:v1 , ex:v3 .
+
+vec:case-06 a vec:Case ;
+    rdfs:label "open belief stays current" ;
+    vec:validAt "2030-01-01T00:00:00Z"^^xsd:dateTimeStamp ;
+    vec:expect ex:v2 , ex:v3 .
+
+vec:case-07 a vec:Case ;
+    rdfs:label "late-recorded edit is invisible to an earlier knowledge cut" ;
+    vec:validAt "2026-03-05T15:00:00Z"^^xsd:dateTimeStamp ;
+    vec:recordedAsOf "2026-03-05T16:00:00Z"^^xsd:dateTimeStamp ;
+    vec:expect ex:v1 .
+
+vec:case-08 a vec:Case ;
+    rdfs:label "the as-of answer improves once the edit is recorded" ;
+    vec:validAt "2026-03-05T15:00:00Z"^^xsd:dateTimeStamp ;
+    vec:recordedAsOf "2026-03-05T18:00:00Z"^^xsd:dateTimeStamp ;
+    vec:expect ex:v1 , ex:v3 .
+
+vec:case-09 a vec:Case ;
+    rdfs:label "recorded cut is inclusive" ;
+    vec:validAt "2026-03-10T12:00:00Z"^^xsd:dateTimeStamp ;
+    vec:recordedAsOf "2026-03-10T12:00:00Z"^^xsd:dateTimeStamp ;
+    vec:expect ex:v2 , ex:v3 .
+
+vec:case-10 a vec:Case ;
+    rdfs:label "backdated close: exactly one current at the backdated hand-over" ;
+    vec:validAt "2026-04-10T00:00:00Z"^^xsd:dateTimeStamp ;
+    vec:expect ex:v2 , ex:v3 , ex:v5 .
+
+vec:case-11 a vec:Case ;
+    rdfs:label "knowledge cut before the backdated close was recorded still sees the old belief" ;
+    vec:validAt "2026-04-15T00:00:00Z"^^xsd:dateTimeStamp ;
+    vec:recordedAsOf "2026-04-19T00:00:00Z"^^xsd:dateTimeStamp ;
+    vec:expect ex:v2 , ex:v3 , ex:v4 .
+
+vec:case-12 a vec:Case ;
+    rdfs:label "cut at the instant the close was recorded: the close applies (<=)" ;
+    vec:validAt "2026-04-15T00:00:00Z"^^xsd:dateTimeStamp ;
+    vec:recordedAsOf "2026-04-20T00:00:00Z"^^xsd:dateTimeStamp ;
+    vec:expect ex:v2 , ex:v3 , ex:v5 .
+
+vec:case-13 a vec:Case ;
+    rdfs:label "one second before the backdated end the old belief is valid under full knowledge" ;
+    vec:validAt "2026-04-09T23:59:59Z"^^xsd:dateTimeStamp ;
+    vec:expect ex:v2 , ex:v3 , ex:v4 .
+
+vec:case-14 a vec:Case ;
+    rdfs:label "a close recorded in advance applies at the instant it names" ;
+    vec:validAt "2026-05-01T00:00:00Z"^^xsd:dateTimeStamp ;
+    vec:recordedAsOf "2026-04-20T00:00:00Z"^^xsd:dateTimeStamp ;
+    vec:expect ex:v2 , ex:v3 .
+
+vec:case-15 a vec:Case ;
+    rdfs:label "before the correction was recorded the wrong belief was believed" ;
+    vec:validAt "2026-06-15T00:00:00Z"^^xsd:dateTimeStamp ;
+    vec:recordedAsOf "2026-06-30T23:59:59Z"^^xsd:dateTimeStamp ;
+    vec:expect ex:v2 , ex:v3 , ex:v6 .
+
+vec:case-16 a vec:Case ;
+    rdfs:label "correction with replacement: the replacement answers for the whole interval" ;
+    vec:validAt "2026-06-15T00:00:00Z"^^xsd:dateTimeStamp ;
+    vec:recordedAsOf "2026-07-01T00:00:00Z"^^xsd:dateTimeStamp ;
+    vec:expect ex:v2 , ex:v3 , ex:v7 .
+
+vec:case-17 a vec:Case ;
+    rdfs:label "the corrected belief is gone at every valid instant, not only after the correction" ;
+    vec:validAt "2026-06-02T00:00:00Z"^^xsd:dateTimeStamp ;
+    vec:recordedAsOf "2026-07-01T00:00:00Z"^^xsd:dateTimeStamp ;
+    vec:expect ex:v2 , ex:v3 , ex:v7 .
+
+vec:case-18 a vec:Case ;
+    rdfs:label "correction without replacement removes the belief at every valid instant" ;
+    vec:validAt "2026-09-10T00:00:00Z"^^xsd:dateTimeStamp ;
+    vec:expect ex:v2 , ex:v3 .
+
+vec:case-19 a vec:Case ;
+    rdfs:label "correction without replacement is invisible to an earlier cut" ;
+    vec:validAt "2026-09-10T00:00:00Z"^^xsd:dateTimeStamp ;
+    vec:recordedAsOf "2026-09-14T23:59:59Z"^^xsd:dateTimeStamp ;
+    vec:expect ex:v2 , ex:v3 , ex:v8 .
+
+vec:case-20 a vec:Case ;
+    rdfs:label "recorded close applies at the instant it was recorded (<=)" ;
+    vec:validAt "2026-09-10T00:00:00Z"^^xsd:dateTimeStamp ;
+    vec:recordedAsOf "2026-09-15T00:00:00Z"^^xsd:dateTimeStamp ;
+    vec:expect ex:v2 , ex:v3 .
+
+vec:case-21 a vec:Case ;
+    rdfs:label "both clocks, cut before recording: neither effect applies" ;
+    vec:validAt "2026-10-10T00:00:00Z"^^xsd:dateTimeStamp ;
+    vec:recordedAsOf "2026-10-31T23:59:59Z"^^xsd:dateTimeStamp ;
+    vec:expect ex:v2 , ex:v3 , ex:v9 .
+
+vec:case-22 a vec:Case ;
+    rdfs:label "both clocks, cut before recording, after the valid end: the valid end is not yet known" ;
+    vec:validAt "2026-10-25T00:00:00Z"^^xsd:dateTimeStamp ;
+    vec:recordedAsOf "2026-10-31T23:59:59Z"^^xsd:dateTimeStamp ;
+    vec:expect ex:v2 , ex:v3 , ex:v9 .
+
+vec:case-23 a vec:Case ;
+    rdfs:label "both clocks, cut at recording: the recorded close removes the belief even before the valid end" ;
+    vec:validAt "2026-10-10T00:00:00Z"^^xsd:dateTimeStamp ;
+    vec:recordedAsOf "2026-11-01T00:00:00Z"^^xsd:dateTimeStamp ;
+    vec:expect ex:v2 , ex:v3 .
+
+vec:case-24 a vec:Case ;
+    rdfs:label "both clocks, full knowledge, after the valid end" ;
+    vec:validAt "2026-10-25T00:00:00Z"^^xsd:dateTimeStamp ;
+    vec:expect ex:v2 , ex:v3 .
+
+vec:case-25 a vec:Case ;
+    rdfs:label "reinstatement: before the wrong correction" ;
+    vec:validAt "2026-12-02T00:00:00Z"^^xsd:dateTimeStamp ;
+    vec:recordedAsOf "2026-12-04T00:00:00Z"^^xsd:dateTimeStamp ;
+    vec:expect ex:v2 , ex:v3 , ex:v10 .
+
+vec:case-26 a vec:Case ;
+    rdfs:label "reinstatement: between the wrong correction and the new belief" ;
+    vec:validAt "2026-12-02T00:00:00Z"^^xsd:dateTimeStamp ;
+    vec:recordedAsOf "2026-12-06T00:00:00Z"^^xsd:dateTimeStamp ;
+    vec:expect ex:v2 , ex:v3 .
+
+vec:case-27 a vec:Case ;
+    rdfs:label "reinstatement: the new belief answers once recorded" ;
+    vec:validAt "2026-12-02T00:00:00Z"^^xsd:dateTimeStamp ;
+    vec:recordedAsOf "2026-12-10T00:00:00Z"^^xsd:dateTimeStamp ;
+    vec:expect ex:v2 , ex:v3 , ex:v11 .
+
+vec:case-28 a vec:Case ;
+    rdfs:label "reinstatement: full knowledge, the earlier correction does not touch the new belief" ;
+    vec:validAt "2026-12-02T00:00:00Z"^^xsd:dateTimeStamp ;
+    vec:expect ex:v2 , ex:v3 , ex:v11 .
+
+vec:case-29 a vec:Case ;
+    rdfs:label "reinstatement: the new belief's own end is exclusive" ;
+    vec:validAt "2026-12-20T00:00:00Z"^^xsd:dateTimeStamp ;
+    vec:expect ex:v2 , ex:v3 .
+
+vec:case-30 a vec:Case ;
+    rdfs:label "two closing records: before either was recorded" ;
+    vec:validAt "2027-02-10T00:00:00Z"^^xsd:dateTimeStamp ;
+    vec:recordedAsOf "2027-01-14T23:59:59Z"^^xsd:dateTimeStamp ;
+    vec:expect ex:v2 , ex:v3 , ex:v12 .
+
+vec:case-31 a vec:Case ;
+    rdfs:label "two closing records: only the first recorded applies" ;
+    vec:validAt "2027-02-10T00:00:00Z"^^xsd:dateTimeStamp ;
+    vec:recordedAsOf "2027-01-15T00:00:00Z"^^xsd:dateTimeStamp ;
+    vec:expect ex:v2 , ex:v3 .
+
+vec:case-32 a vec:Case ;
+    rdfs:label "two closing records: a later-recorded closing record with a later end does not extend the interval" ;
+    vec:validAt "2027-02-10T00:00:00Z"^^xsd:dateTimeStamp ;
+    vec:recordedAsOf "2027-01-20T00:00:00Z"^^xsd:dateTimeStamp ;
+    vec:expect ex:v2 , ex:v3 .
+
+vec:case-33 a vec:Case ;
+    rdfs:label "two closing records, full knowledge: the effective end is the minimum" ;
+    vec:validAt "2027-02-10T00:00:00Z"^^xsd:dateTimeStamp ;
+    vec:expect ex:v2 , ex:v3 .
+
+vec:case-34 a vec:Case ;
+    rdfs:label "two closing records: one second before the effective end" ;
+    vec:validAt "2027-01-31T23:59:59Z"^^xsd:dateTimeStamp ;
+    vec:expect ex:v2 , ex:v3 , ex:v12 .
+
+vec:case-35 a vec:Case ;
+    rdfs:label "two closing records: the effective end is exclusive" ;
+    vec:validAt "2027-02-01T00:00:00Z"^^xsd:dateTimeStamp ;
+    vec:expect ex:v2 , ex:v3 .
+
+vec:case-36 a vec:Case ;
+    rdfs:label "two beliefs with the same subject and predicate are both current when their valid times overlap" ;
+    vec:validAt "2031-02-15T00:00:00Z"^^xsd:dateTimeStamp ;
+    vec:recordedAsOf "2031-02-15T00:00:00Z"^^xsd:dateTimeStamp ;
+    vec:expect ex:v2 , ex:v3 , ex:v13 , ex:v14 , ex:v15 , ex:v17 .
+
+vec:case-37 a vec:Case ;
+    rdfs:label "a re-assertion of the same subject, predicate and object is a second belief, and both are current" ;
+    vec:validAt "2031-07-01T00:00:00Z"^^xsd:dateTimeStamp ;
+    vec:recordedAsOf "2031-06-01T00:00:00Z"^^xsd:dateTimeStamp ;
+    vec:expect ex:v2 , ex:v3 , ex:v13 , ex:v14 , ex:v15 , ex:v16 , ex:v17 .
+
+vec:case-38 a vec:Case ;
+    rdfs:label "a cut before the re-assertion was recorded sees only the first belief" ;
+    vec:validAt "2031-07-01T00:00:00Z"^^xsd:dateTimeStamp ;
+    vec:recordedAsOf "2031-05-31T23:59:59Z"^^xsd:dateTimeStamp ;
+    vec:expect ex:v2 , ex:v3 , ex:v13 , ex:v14 , ex:v15 , ex:v17 .
+
+vec:case-39 a vec:Case ;
+    rdfs:label "reported end under full knowledge is the earliest end, not the first-recorded closing record" ;
+    vec:validAt "2031-05-01T00:00:00Z"^^xsd:dateTimeStamp ;
+    vec:expect ex:v2 , ex:v3 , ex:v13 , ex:v14 , ex:v15 , ex:v16 , ex:v17 ;
+    vec:expectEnd [ vec:record ex:v17 ; vec:end "2031-09-01T00:00:00Z"^^xsd:dateTimeStamp ] ;
+    vec:expectNoEnd ex:v13 .
+
+vec:case-40 a vec:Case ;
+    rdfs:label "reported end at a cut that sees only the first closing record" ;
+    vec:validAt "2031-05-01T00:00:00Z"^^xsd:dateTimeStamp ;
+    vec:recordedAsOf "2031-03-15T00:00:00Z"^^xsd:dateTimeStamp ;
+    vec:expect ex:v2 , ex:v3 , ex:v13 , ex:v14 , ex:v15 , ex:v17 ;
+    vec:expectEnd [ vec:record ex:v17 ; vec:end "2031-12-01T00:00:00Z"^^xsd:dateTimeStamp ] .
+
+vec:case-41 a vec:Case ;
+    rdfs:label "reported end is the earliest end, not the last-recorded closing record" ;
+    vec:validAt "2027-01-25T00:00:00Z"^^xsd:dateTimeStamp ;
+    vec:expect ex:v2 , ex:v3 , ex:v12 ;
+    vec:expectEnd [ vec:record ex:v12 ; vec:end "2027-02-01T00:00:00Z"^^xsd:dateTimeStamp ] .
