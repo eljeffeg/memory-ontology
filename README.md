@@ -98,6 +98,8 @@ ex:belief-1 a temporal:TemporalAssertion ;
 
 A decision is an episode with `memory:episodeType memory:Decision` or a narrower type: `RouteDecision` (hand work to an agent), `SpawnDecision` (start a session), or `ActionDecision` (an effect outside memory). The narrower types name what was chosen with `memory:target` and cite the episodes or beliefs they rest on, never a brief. An action decision also names its `memory:policy`. `memory:agent` is the deciding agent; give that agent `prov:actedOnBehalfOf` for the accountable person. Running the action stays in the system that executes it. A later episode that reports the result cites the decision with `memory:evidence`.
 
+Not every tool use is a decision. A read-only call, such as a search or fetch, is just a `memory:Tool` episode. Record an `ActionDecision` when a call, including an MCP tool call, has effects outside memory. Record a `RouteDecision` when work goes to a separate agent, such as an MCP server that runs its own agent (`prov:SoftwareAgent`). Loading a skill is not a decision: a skill is instructions the agent follows, not an agent or an action.
+
 ## Validation
 
 Load `temporal-shapes.shacl.ttl` to check temporal assertions. To check memory records, load **both** temporal and memory shape files: the memory shapes do not invoke the temporal shapes automatically. Include referenced records in the validation data when checking relationships such as evidence and supersession. A decision's target needs its type in the data: a `prov:Agent` for a route and a `memory:Session` for a spawn. If the type is missing, the decision fails validation. The answer-evidence shapes are a separate validation set.
