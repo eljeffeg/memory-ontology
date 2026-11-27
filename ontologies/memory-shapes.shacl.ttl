@@ -334,7 +334,7 @@ memory:RetractionIsClosureShape
     a sh:NodeShape ;
     sh:targetSubjectsOf memory:kind ;
     rdfs:label "Retraction is a closure"@en ;
-    rdfs:comment "A memory record is a temporal:Closure exactly when its kind is memory:Retraction. Every other kind reifies a triple. temporal:ClosureShape then requires temporal:supersedes and temporal:closes and forbids a reified triple. Whether temporal:closes agrees with an asserted end on the earlier record is a store check, not a SHACL check, because that end is on the other record."@en ;
+    rdfs:comment "A memory record is a temporal:Closure exactly when its kind is memory:Retraction. Every other kind reifies a triple. temporal:ClosureShape then requires temporal:closes and forbids a reified triple, and temporal:ClosesShape requires temporal:supersedes. Whether temporal:closes agrees with an asserted end on the earlier record is a store check, not a SHACL check, because that end is on the other record."@en ;
     sh:message "A memory record is typed temporal:Closure exactly when its kind is memory:Retraction."@en ;
     sh:xone (
         [ sh:path memory:kind ; sh:hasValue memory:Retraction ]

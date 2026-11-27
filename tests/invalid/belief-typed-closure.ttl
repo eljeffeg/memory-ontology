@@ -2,7 +2,6 @@
 # closure has no triple and must close a record.
 # expect: A closure names the clock it closes.
 # expect: A closure reifies no triple.
-# expect: A closure supersedes the record it ends.
 # expect: A memory record is typed temporal:Closure exactly when its kind is memory:Retraction.
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .

@@ -1,5 +1,4 @@
 # A closure does not say which record it ends.
-# expect: A closure supersedes the record it ends.
 # expect: A record that closes a clock must supersede the record it closes.
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
