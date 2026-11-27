@@ -1,0 +1,52 @@
+# Which beliefs hold in each case, and the valid-time end each reports.
+#
+# A belief holds at valid time ?t, as known at recorded time ?r, when
+#   - it was recorded at or before ?r and its valid time has started by ?t, and
+#   - no closing record that the cut can see removes it.
+# A closing record is one that points at the belief with temporal:supersedes.
+# The cut sees it when it was recorded at or before ?r. It removes the belief
+# when it closes recorded time, or when it closes valid time and its own
+# temporal:validFrom, which is the belief's end, is at or before ?t. A record
+# that supersedes and names no clock closes valid time. A stored
+# temporal:validUntil or temporal:recordedUntil on the belief is never read.
+#
+# A case with no vec:recordedAsOf uses everything recorded.
+
+PREFIX temporal: <http://nova.dev/temporal#>
+PREFIX memory:   <http://nova.dev/memory#>
+PREFIX vec:      <https://example.org/vectors#>
+
+SELECT ?case ?record (MIN(?seenEnd) AS ?end)
+WHERE {
+  ?case a vec:Case ; vec:validAt ?t .
+  OPTIONAL { ?case vec:recordedAsOf ?r }
+
+  ?record memory:kind memory:Belief ;
+          temporal:validFrom ?validFrom ;
+          temporal:recordedFrom ?recordedFrom .
+  FILTER (?validFrom <= ?t)
+  FILTER (!bound(?r) || ?recordedFrom <= ?r)
+
+  FILTER NOT EXISTS {
+    ?closing temporal:supersedes ?record ;
+             temporal:recordedFrom ?closedAt ;
+             temporal:validFrom ?closingFrom .
+    FILTER (!bound(?r) || ?closedAt <= ?r)   # the cut sees the closing record
+    OPTIONAL { ?closing temporal:closes ?named }
+    BIND (COALESCE(?named, temporal:ValidTime) AS ?clock)
+    FILTER (?clock = temporal:RecordedTime
+            || (?clock = temporal:ValidTime && ?closingFrom <= ?t))
+  }
+
+  # The end a held belief reports: the earliest valid-time close the cut sees.
+  OPTIONAL {
+    ?ending temporal:supersedes ?record ;
+            temporal:recordedFrom ?endRecorded ;
+            temporal:validFrom ?seenEnd .
+    FILTER (!bound(?r) || ?endRecorded <= ?r)   # the cut sees the closing record
+    FILTER (NOT EXISTS { ?ending temporal:closes ?any }
+            || EXISTS { ?ending temporal:closes temporal:ValidTime })
+  }
+}
+GROUP BY ?case ?record
+ORDER BY ?case ?record

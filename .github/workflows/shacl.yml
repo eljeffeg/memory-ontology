@@ -28,5 +28,5 @@ jobs:
           echo "JENA_HOME=$PWD/apache-jena-${JENA_VERSION}" >> "$GITHUB_ENV"
       - name: Parse every ontology and shape file
         run: '"$JENA_HOME/bin/riot" --validate ontologies/*.ttl'
-      - name: Run the SHACL fixtures
+      - name: Run the SHACL fixtures and the bitemporal cases
         run: tests/run.sh
