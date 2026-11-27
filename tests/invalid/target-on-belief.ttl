@@ -1,0 +1,20 @@
+# A target belongs only on a route, spawn, or action decision.
+# expect: memory:target is allowed only on a route, spawn, or action decision episode.
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix temporal: <http://nova.dev/temporal#> .
+@prefix memory: <http://nova.dev/memory#> .
+@prefix ex: <https://example.org/> .
+
+ex:episode-1 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:alice ex:said ex:outage-reported )>> ;
+    memory:kind memory:Episode ;
+    memory:role memory:User ;
+    temporal:validFrom "2026-11-01T10:00:00Z"^^xsd:dateTimeStamp .
+
+ex:belief-1 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:service ex:status ex:degraded )>> ;
+    memory:kind memory:Belief ;
+    memory:evidence ex:episode-1 ;
+    memory:target ex:oncall-agent ;
+    temporal:validFrom "2026-11-01T10:01:00Z"^^xsd:dateTimeStamp .

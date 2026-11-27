@@ -1,0 +1,45 @@
+# An action decision names a policy, may cite a belief and an external alert, and its result cites it.
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix temporal: <http://nova.dev/temporal#> .
+@prefix memory: <http://nova.dev/memory#> .
+@prefix ex: <https://example.org/> .
+
+ex:episode-1 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:alice ex:said ex:outage-reported )>> ;
+    memory:kind memory:Episode ;
+    memory:role memory:User ;
+    temporal:validFrom "2026-11-01T10:00:00Z"^^xsd:dateTimeStamp .
+
+ex:triage-agent a prov:Agent ;
+    prov:actedOnBehalfOf ex:alice .
+
+ex:belief-1 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:service ex:status ex:degraded )>> ;
+    memory:kind memory:Belief ;
+    memory:evidence ex:episode-1 ;
+    temporal:validFrom "2026-11-01T10:01:00Z"^^xsd:dateTimeStamp .
+
+ex:restart-policy a memory:Policy ;
+    memory:name "service restart" ;
+    memory:version "3" .
+
+ex:decision-1 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:triage-agent ex:decided ex:restart-service )>> ;
+    memory:kind memory:Episode ;
+    memory:role memory:Assistant ;
+    memory:episodeType memory:ActionDecision ;
+    memory:target ex:restart-service ;
+    memory:agent ex:triage-agent ;
+    memory:policy ex:restart-policy ;
+    memory:evidence ex:episode-1 , ex:belief-1 ;
+    memory:source ex:alert-77 ;
+    temporal:validFrom "2026-11-01T10:05:00Z"^^xsd:dateTimeStamp .
+
+ex:result-1 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:restart-service ex:exitCode 0 )>> ;
+    memory:kind memory:Episode ;
+    memory:role memory:Tool ;
+    memory:evidence ex:decision-1 ;
+    temporal:validFrom "2026-11-01T10:06:00Z"^^xsd:dateTimeStamp .

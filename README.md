@@ -68,9 +68,11 @@ ex:belief-1 a temporal:TemporalAssertion ;
     temporal:validFrom "2026-11-01T12:00:00Z"^^xsd:dateTimeStamp .
 ```
 
+A decision is an episode with `memory:episodeType memory:Decision` or a narrower type: `RouteDecision` (hand work to an agent), `SpawnDecision` (start a session), or `ActionDecision` (an effect outside memory). The narrower types name what was chosen with `memory:target` and cite the episodes or beliefs they rest on, never a brief. An action decision also names its `memory:policy`. `memory:agent` is the deciding agent; give that agent `prov:actedOnBehalfOf` for the accountable person. Running the action stays in the system that executes it. A later episode that reports the result cites the decision with `memory:evidence`.
+
 ## Validation
 
-Load `temporal-shapes.shacl.ttl` to check temporal assertions. To check memory records, load **both** temporal and memory shape files: the memory shapes do not invoke the temporal shapes automatically. Include referenced records in the validation data when checking relationships such as evidence and supersession. The answer-evidence shapes are a separate validation set.
+Load `temporal-shapes.shacl.ttl` to check temporal assertions. To check memory records, load **both** temporal and memory shape files: the memory shapes do not invoke the temporal shapes automatically. Include referenced records in the validation data when checking relationships such as evidence and supersession. A decision's target needs its type in the data: a `prov:Agent` for a route and a `memory:Session` for a spawn. If the type is missing, the decision fails validation. The answer-evidence shapes are a separate validation set.
 
 SHACL validation is not a substitute for all application checks. For example, the temporal shapes cannot require the object of `rdf:reifies` to be a triple term, and timestamp comparisons depend on validator support for `xsd:dateTimeStamp`. Nova does not run the temporal and memory shapes on its memory write path. See the comments in each shape file for further limits.
 

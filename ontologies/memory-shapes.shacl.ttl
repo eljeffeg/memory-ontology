@@ -56,8 +56,14 @@ memory:TemporalAssertionShape
     sh:property [
         sh:path memory:episodeType ;
         sh:maxCount 1 ;
-        sh:in ( memory:Decision ) ;
-        sh:message "episodeType is Decision."@en ;
+        sh:in ( memory:Decision memory:RouteDecision memory:SpawnDecision memory:ActionDecision ) ;
+        sh:message "episodeType is Decision, RouteDecision, SpawnDecision, or ActionDecision."@en ;
+    ] ;
+    sh:property [
+        sh:path memory:target ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "target is one IRI."@en ;
     ] ;
     sh:property [
         sh:path memory:evidence ;
@@ -128,8 +134,8 @@ memory:EvidenceKindShape
     a sh:NodeShape ;
     sh:targetSubjectsOf memory:evidence ;
     rdfs:label "Evidence kind by citing kind"@en ;
-    rdfs:comment "A topic brief cites session briefs. Every other record cites episodes, so a generated brief is never evidence for a belief, procedure, proposal, or session brief."@en ;
-    sh:message "A topic brief cites session briefs. Any other record cites episodes."@en ;
+    rdfs:comment "A topic brief cites session briefs. A decision episode cites episodes or beliefs. Every other record cites episodes, so a generated brief is never evidence for a belief, procedure, proposal, session brief, or decision."@en ;
+    sh:message "A topic brief cites session briefs. A decision episode cites episodes or beliefs. Any other record cites episodes."@en ;
     sh:or (
         [
             sh:path memory:kind ;
@@ -138,6 +144,13 @@ memory:EvidenceKindShape
         [
             sh:path memory:evidence ;
             sh:node memory:EvidenceEpisodeShape ;
+        ]
+        [
+            sh:node memory:DecisionEpisodeShape ;
+            sh:property [
+                sh:path memory:evidence ;
+                sh:node memory:EvidenceEpisodeOrBeliefShape ;
+            ] ;
         ]
     ) ;
     sh:or (
@@ -174,17 +187,110 @@ memory:EvidenceEpisodeShape
         sh:message "The cited record has kind Episode."@en ;
     ] .
 
+memory:EvidenceEpisodeOrBeliefShape
+    a sh:NodeShape ;
+    rdfs:label "Evidence episode or belief shape"@en ;
+    rdfs:comment "Applied to the evidence of a decision episode. Each cited record is one episode or one belief."@en ;
+    sh:property [
+        sh:path memory:kind ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:in ( memory:Episode memory:Belief ) ;
+        sh:message "The cited record has kind Episode or Belief."@en ;
+    ] .
+
+memory:DecisionEpisodeShape
+    a sh:NodeShape ;
+    rdfs:label "Decision episode"@en ;
+    rdfs:comment "An episode with an episode type. Every allowed episode type is Decision or a narrower decision, and TemporalAssertionShape limits the values."@en ;
+    sh:property [
+        sh:path memory:kind ;
+        sh:hasValue memory:Episode ;
+    ] ;
+    sh:property [
+        sh:path memory:episodeType ;
+        sh:minCount 1 ;
+    ] .
+
+memory:TargetedDecisionShape
+    a sh:NodeShape ;
+    rdfs:label "Targeted decision"@en ;
+    rdfs:comment "A route, spawn, or action decision. Used to require and to restrict memory:target."@en ;
+    sh:property [
+        sh:path memory:episodeType ;
+        sh:minCount 1 ;
+        sh:in ( memory:RouteDecision memory:SpawnDecision memory:ActionDecision ) ;
+    ] .
+
+memory:TargetRequiredShape
+    a sh:NodeShape ;
+    sh:targetSubjectsOf memory:kind ;
+    rdfs:label "Targeted decision names a target and evidence"@en ;
+    rdfs:comment "A route, spawn, or action decision names what it chose and cites what it rests on. A plain Decision episode needs neither."@en ;
+    sh:message "A route, spawn, or action decision names a target and cites evidence."@en ;
+    sh:or (
+        [ sh:not memory:TargetedDecisionShape ]
+        [
+            sh:property [ sh:path memory:target ; sh:minCount 1 ] ;
+            sh:property [ sh:path memory:evidence ; sh:minCount 1 ] ;
+        ]
+    ) .
+
+memory:TargetOnlyOnTargetedDecisionShape
+    a sh:NodeShape ;
+    sh:targetSubjectsOf memory:target ;
+    rdfs:label "Target only on a targeted decision"@en ;
+    sh:message "memory:target is allowed only on a route, spawn, or action decision episode."@en ;
+    rdfs:comment "Episode types are allowed only on episodes, so a targeted decision is always an episode."@en ;
+    sh:node memory:TargetedDecisionShape .
+
+memory:ActionDecisionPolicyShape
+    a sh:NodeShape ;
+    sh:targetSubjectsOf memory:episodeType ;
+    rdfs:label "Action decision names a policy"@en ;
+    rdfs:comment "An action has effects outside memory, so the record names the policy that allowed it. Whether the policy was honored is checked by the system that runs the action."@en ;
+    sh:message "An action decision names the policy that allowed it."@en ;
+    sh:or (
+        [ sh:not [ sh:path memory:episodeType ; sh:hasValue memory:ActionDecision ] ]
+        [ sh:path memory:policy ; sh:minCount 1 ]
+    ) .
+
+memory:SpawnTargetSessionShape
+    a sh:NodeShape ;
+    sh:targetSubjectsOf memory:episodeType ;
+    rdfs:label "Spawn decision targets a session"@en ;
+    rdfs:comment "A spawn decision starts a session, so its target is a memory:Session. As with every sh:class check, the target's type must be in the validation data."@en ;
+    sh:message "A spawn decision targets a memory:Session."@en ;
+    sh:or (
+        [ sh:not [ sh:path memory:episodeType ; sh:hasValue memory:SpawnDecision ] ]
+        [ sh:path memory:target ; sh:class memory:Session ]
+    ) .
+
+memory:RouteTargetAgentShape
+    a sh:NodeShape ;
+    sh:targetSubjectsOf memory:episodeType ;
+    rdfs:label "Route decision targets an agent"@en ;
+    rdfs:comment "A route decision hands work to an agent, so its target is a prov:Agent. As with every sh:class check, the target's type must be in the validation data."@en ;
+    sh:message "A route decision targets a prov:Agent."@en ;
+    sh:or (
+        [ sh:not [ sh:path memory:episodeType ; sh:hasValue memory:RouteDecision ] ]
+        [ sh:path memory:target ; sh:class prov:Agent ]
+    ) .
+
 memory:SourceShape
     a sh:NodeShape ;
     sh:targetSubjectsOf memory:source ;
     rdfs:label "External source"@en ;
-    rdfs:comment "A source is an IRI outside memory. Whether it is a memory record can be checked only when it is in the validation load. A source that is absent passes."@en ;
-    sh:property [
-        sh:path memory:kind ;
-        sh:minCount 1 ;
-        sh:in ( memory:Belief memory:Procedure memory:Proposal memory:Retraction ) ;
-        sh:message "memory:source is allowed only on a belief, procedure, proposal, or retraction."@en ;
-    ] ;
+    rdfs:comment "A source is an IRI outside memory. Whether it is a memory record can be checked only when it is in the validation load. A source that is absent passes. A decision episode may name the external resource that prompted it, such as an alert."@en ;
+    sh:or (
+        [
+            sh:path memory:kind ;
+            sh:minCount 1 ;
+            sh:in ( memory:Belief memory:Procedure memory:Proposal memory:Retraction ) ;
+        ]
+        [ sh:node memory:DecisionEpisodeShape ]
+    ) ;
+    sh:message "memory:source is allowed only on a belief, procedure, proposal, retraction, or decision episode."@en ;
     sh:property [
         sh:path memory:source ;
         sh:nodeKind sh:IRI ;

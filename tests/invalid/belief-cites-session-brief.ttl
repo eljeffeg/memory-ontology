@@ -1,5 +1,5 @@
 # A generated brief is not evidence for a belief.
-# expect: A topic brief cites session briefs. Any other record cites episodes.
+# expect: A topic brief cites session briefs. A decision episode cites episodes or beliefs. Any other record cites episodes.
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix temporal: <http://nova.dev/temporal#> .
