@@ -1,0 +1,29 @@
+# A store without triple terms reifies with rdf:subject, rdf:predicate,
+# and rdf:object, and still closes recorded time with its own record.
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix temporal: <http://nova.dev/temporal#> .
+@prefix memory: <http://nova.dev/memory#> .
+@prefix ex: <https://example.org/> .
+
+ex:clerk a prov:Agent .
+ex:auditor a prov:Agent .
+
+ex:price-1 a temporal:TemporalAssertion , rdf:Statement ;
+    rdf:subject ex:widget ;
+    rdf:predicate ex:price ;
+    rdf:object 12 ;
+    prov:wasAttributedTo ex:clerk ;
+    temporal:validFrom "2026-11-01T00:00:00Z"^^xsd:dateTimeStamp ;
+    temporal:recordedFrom "2026-11-01T09:00:00Z"^^xsd:dateTimeStamp .
+
+ex:price-2 a temporal:TemporalAssertion ;
+    rdf:subject ex:widget ;
+    rdf:predicate ex:price ;
+    rdf:object 21 ;
+    prov:wasAttributedTo ex:auditor ;
+    temporal:supersedes ex:price-1 ;
+    temporal:closes temporal:RecordedTime ;
+    temporal:validFrom "2026-11-01T00:00:00Z"^^xsd:dateTimeStamp ;
+    temporal:recordedFrom "2026-11-04T15:00:00Z"^^xsd:dateTimeStamp .

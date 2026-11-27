@@ -1,0 +1,15 @@
+# A record must not use both reification forms.
+# expect: A temporal assertion reifies one triple, either with one rdf:reifies or with one each of rdf:subject, rdf:predicate and rdf:object, not both. Only a temporal:Closure reifies no triple.
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix temporal: <http://nova.dev/temporal#> .
+@prefix memory: <http://nova.dev/memory#> .
+@prefix ex: <https://example.org/> .
+
+ex:price-1 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:widget ex:price 12 )>> ;
+    rdf:subject ex:widget ;
+    rdf:predicate ex:price ;
+    rdf:object 12 ;
+    temporal:validFrom "2026-11-01T00:00:00Z"^^xsd:dateTimeStamp .

@@ -1,0 +1,13 @@
+# A domain record closes a clock but does not say which record it closes.
+# expect: A record that closes a clock must supersede the record it closes.
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix temporal: <http://nova.dev/temporal#> .
+@prefix memory: <http://nova.dev/memory#> .
+@prefix ex: <https://example.org/> .
+
+ex:price-2 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:widget ex:price 21 )>> ;
+    temporal:closes temporal:RecordedTime ;
+    temporal:validFrom "2026-11-01T00:00:00Z"^^xsd:dateTimeStamp .

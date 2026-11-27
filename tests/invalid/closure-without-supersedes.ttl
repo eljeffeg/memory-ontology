@@ -1,0 +1,18 @@
+# A closure does not say which record it ends.
+# expect: A record that closes a clock must supersede the record it closes.
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix temporal: <http://nova.dev/temporal#> .
+@prefix memory: <http://nova.dev/memory#> .
+@prefix ex: <https://example.org/> .
+
+ex:price-1 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:widget ex:price 12 )>> ;
+    prov:wasAttributedTo ex:clerk ;
+    temporal:validFrom "2026-11-01T00:00:00Z"^^xsd:dateTimeStamp ;
+    temporal:recordedFrom "2026-11-01T09:00:00Z"^^xsd:dateTimeStamp .
+
+ex:price-end a temporal:TemporalAssertion , temporal:Closure ;
+    temporal:closes temporal:ValidTime ;
+    temporal:validFrom "2026-12-01T00:00:00Z"^^xsd:dateTimeStamp .

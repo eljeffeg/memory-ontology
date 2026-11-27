@@ -1,4 +1,5 @@
-# A retraction supersedes the record it closes and names the clock.
+# A retraction is a closure: it supersedes the record it closes, names the
+# clock, and reifies no triple.
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix temporal: <http://nova.dev/temporal#> .
@@ -23,9 +24,8 @@ ex:belief-1 a temporal:TemporalAssertion ;
     memory:evidence ex:episode-1 ;
     temporal:validFrom "2026-11-01T10:00:00Z"^^xsd:dateTimeStamp .
 
-ex:retraction-1 a temporal:TemporalAssertion ;
-    rdf:reifies <<( ex:release ex:status ex:planned )>> ;
+ex:retraction-1 a temporal:TemporalAssertion , temporal:Closure ;
     memory:kind memory:Retraction ;
     temporal:supersedes ex:belief-1 ;
-    memory:closes memory:RecordedTime ;
+    temporal:closes temporal:RecordedTime ;
     temporal:validFrom "2026-11-01T10:00:00Z"^^xsd:dateTimeStamp .

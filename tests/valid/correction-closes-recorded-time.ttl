@@ -1,0 +1,41 @@
+# Correction: belief-1 was a mistake. The closing record closes recorded
+# time. belief-1 was held from 2026-11-01 until the correction was recorded on
+# 2026-11-05, and it was never true in the world. The corrected belief has
+# the valid time that should have been recorded.
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix temporal: <http://nova.dev/temporal#> .
+@prefix memory: <http://nova.dev/memory#> .
+@prefix ex: <https://example.org/> .
+
+ex:episode-1 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:alice ex:said ex:release-planned )>> ;
+    memory:kind memory:Episode ;
+    memory:role memory:User ;
+    temporal:validFrom "2026-11-01T10:00:00Z"^^xsd:dateTimeStamp .
+
+ex:episode-2 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:bob ex:said ex:release-moved )>> ;
+    memory:kind memory:Episode ;
+    memory:role memory:User ;
+    temporal:validFrom "2026-11-05T10:00:00Z"^^xsd:dateTimeStamp .
+
+ex:belief-1 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:release ex:status ex:planned )>> ;
+    memory:kind memory:Belief ;
+    memory:evidence ex:episode-1 ;
+    temporal:validFrom "2026-11-01T10:00:00Z"^^xsd:dateTimeStamp ;
+    temporal:recordedFrom "2026-11-01T10:00:05Z"^^xsd:dateTimeStamp .
+
+ex:belief-2 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:release ex:status ex:moved )>> ;
+    memory:kind memory:Belief ;
+    memory:evidence ex:episode-2 ;
+    memory:agent ex:assistant ;
+    temporal:supersedes ex:belief-1 ;
+    temporal:closes temporal:RecordedTime ;
+    temporal:validFrom "2026-11-01T10:00:00Z"^^xsd:dateTimeStamp ;
+    temporal:recordedFrom "2026-11-05T10:00:05Z"^^xsd:dateTimeStamp .
+
+ex:assistant a prov:Agent .

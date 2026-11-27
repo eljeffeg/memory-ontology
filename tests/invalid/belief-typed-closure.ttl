@@ -1,0 +1,29 @@
+# A belief is typed temporal:Closure. Only a retraction is a closure, and a
+# closure has no triple and must close a record.
+# expect: A closure names the clock it closes.
+# expect: A closure reifies no triple.
+# expect: A memory record is typed temporal:Closure exactly when its kind is memory:Retraction.
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix temporal: <http://nova.dev/temporal#> .
+@prefix memory: <http://nova.dev/memory#> .
+@prefix ex: <https://example.org/> .
+
+ex:episode-1 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:alice ex:said ex:release-planned )>> ;
+    memory:kind memory:Episode ;
+    memory:role memory:User ;
+    temporal:validFrom "2026-11-01T10:00:00Z"^^xsd:dateTimeStamp .
+
+ex:episode-2 a temporal:TemporalAssertion ;
+    rdf:reifies <<( ex:bob ex:said ex:release-moved )>> ;
+    memory:kind memory:Episode ;
+    memory:role memory:User ;
+    temporal:validFrom "2026-11-02T10:00:00Z"^^xsd:dateTimeStamp .
+
+ex:belief-1 a temporal:TemporalAssertion , temporal:Closure ;
+    rdf:reifies <<( ex:release ex:status ex:planned )>> ;
+    memory:kind memory:Belief ;
+    memory:evidence ex:episode-1 ;
+    temporal:validFrom "2026-11-01T10:00:00Z"^^xsd:dateTimeStamp .
+

@@ -12,7 +12,7 @@ memory:TemporalAssertionShape
     rdfs:label "Temporal assertion shape"@en ;
     rdfs:comment "This shape requires rdf:type temporal:TemporalAssertion. A memory record with no type, or typed only memory:TemporalAssertion, fails that check. A record that has the temporal type is also validated by the temporal shape: one reified triple, no temporal:validAt beside temporal:validFrom, and the recordedSequence datatype. This shape does not repeat those checks and does not sh:node them."@en ;
     rdfs:comment "temporal:recordedFrom is optional. A native commit sequence satisfies transaction time when that literal is absent. temporal:recordedSequence is not required on an in-process write."@en ;
-    rdfs:comment "Whether memory:closes agrees with an asserted temporal:validUntil or temporal:recordedUntil on the earlier record is a store check, not a SHACL check, because that end is on the other record."@en ;
+    rdfs:comment "Whether temporal:closes agrees with an asserted temporal:validUntil or temporal:recordedUntil on the earlier record is a store check, not a SHACL check, because that end is on the other record."@en ;
     rdfs:comment "An absent session is part of application identity. It is not a graph constraint."@en ;
     rdfs:comment "A record may cite several episodes. Each object is one episode record."@en ;
     sh:property [
@@ -114,12 +114,6 @@ memory:TemporalAssertionShape
             ]
         ) ;
         sh:message "confidence is an optional value from 0 to 1, as xsd:decimal or xsd:integer."@en ;
-    ] ;
-    sh:property [
-        sh:path memory:closes ;
-        sh:maxCount 2 ;
-        sh:in ( memory:ValidTime memory:RecordedTime ) ;
-        sh:message "closes is ValidTime, RecordedTime, or both."@en ;
     ] ;
     sh:property [
         sh:path memory:lexical ;
@@ -336,40 +330,26 @@ memory:ConfidenceOnlyOnBeliefShape
         [ sh:path memory:confidence ; sh:maxCount 0 ]
     ) .
 
-memory:RetractionClosesClockShape
+memory:RetractionIsClosureShape
     a sh:NodeShape ;
     sh:targetSubjectsOf memory:kind ;
-    rdfs:label "Retraction closes a clock"@en ;
-    rdfs:comment "Whether memory:closes agrees with an asserted temporal:validUntil or temporal:recordedUntil on the earlier record is a store check, not a SHACL check, because that end is on the other record."@en ;
-    sh:message "A retraction has memory:closes at least once."@en ;
-    sh:or (
-        [ sh:not [ sh:path memory:kind ; sh:hasValue memory:Retraction ] ]
-        [ sh:path memory:closes ; sh:minCount 1 ]
-    ) .
-
-memory:RetractionSupersedesShape
-    a sh:NodeShape ;
-    sh:targetSubjectsOf memory:kind ;
-    rdfs:label "Retraction supersedes a record"@en ;
-    sh:message "A retraction must supersede the record it closes."@en ;
-    sh:or (
-        [ sh:not [ sh:path memory:kind ; sh:hasValue memory:Retraction ] ]
-        [ sh:path temporal:supersedes ; sh:minCount 1 ]
+    rdfs:label "Retraction is a closure"@en ;
+    rdfs:comment "A memory record is a temporal:Closure exactly when its kind is memory:Retraction. Every other kind reifies a triple. temporal:ClosureShape then requires temporal:closes and forbids a reified triple, and temporal:ClosesShape requires temporal:supersedes. Whether temporal:closes agrees with an asserted end on the earlier record is a store check, not a SHACL check, because that end is on the other record."@en ;
+    sh:message "A memory record is typed temporal:Closure exactly when its kind is memory:Retraction."@en ;
+    sh:xone (
+        [ sh:path memory:kind ; sh:hasValue memory:Retraction ]
+        [ sh:not [ sh:path rdf:type ; sh:hasValue temporal:Closure ] ]
     ) .
 
 memory:SupersedesClosesClockShape
     a sh:NodeShape ;
     sh:targetSubjectsOf memory:kind ;
     rdfs:label "Supersession names a clock"@en ;
-    rdfs:comment "A domain record is not a target. A domain record that supersedes a memory record and carries no memory:closes is a world change: it closes valid time, and this shape does not reject it."@en ;
+    rdfs:comment "A domain record is not a target. A domain record that supersedes and carries no temporal:closes is a world change: it closes valid time, and this shape does not reject it. The allowed clock values are checked by temporal:ClosesShape."@en ;
     sh:message "A record that supersedes another must say which clock it closes."@en ;
     sh:or (
         [ sh:path temporal:supersedes ; sh:maxCount 0 ]
-        [
-            sh:path memory:closes ;
-            sh:minCount 1 ;
-            sh:in ( memory:ValidTime memory:RecordedTime )
-        ]
+        [ sh:path temporal:closes ; sh:minCount 1 ]
     ) .
 
 memory:RetractionHasNoLexicalShape
@@ -382,30 +362,25 @@ memory:RetractionHasNoLexicalShape
         [ sh:path memory:lexical ; sh:maxCount 0 ]
     ) .
 
-memory:ClosesRequiresKindShape
-    a sh:NodeShape ;
-    sh:targetSubjectsOf memory:closes ;
-    rdfs:label "Closes requires a memory record"@en ;
-    sh:property [
-        sh:path memory:kind ;
-        sh:minCount 1 ;
-        sh:message "memory:closes is only legal on a memory record. A domain record with memory:closes memory:RecordedTime is not a recorded-time correction."@en ;
-    ] .
-
 memory:BriefPropositionShape
     a sh:NodeShape ;
-    sh:targetSubjectsOf rdf:reifies ;
+    sh:targetSubjectsOf rdf:reifies , rdf:predicate ;
     rdfs:label "Brief proposition"@en ;
-    rdfs:comment "A brief record reifies a triple whose predicate is memory:brief. Its subject is the session or topic, and its object is the Markdown, as an xsd:string or an rdf:langString. Only a session brief or a topic brief reifies a memory:brief triple. A reifier with no memory:kind is not a memory record and is not checked."@en ;
+    rdfs:comment "A brief record reifies a triple whose predicate is memory:brief. Its subject is the session or topic, and its object is the Markdown, as an xsd:string or an rdf:langString. Only a session brief or a topic brief reifies a memory:brief triple. A reifier with no memory:kind is not a memory record and is not checked. The triple is read from either reification form: an rdf:reifies triple term, or rdf:predicate and rdf:object on the record."@en ;
     sh:sparql [
         a sh:SPARQLConstraint ;
         sh:message "A session brief or topic brief reifies a memory:brief triple, and no other memory record does."@en ;
         sh:prefixes memory:BriefShapePrefixes ;
         sh:select """
             SELECT $this WHERE {
-                $this memory:kind ?kind ;
-                    rdf:reifies ?triple .
-                BIND (PREDICATE(?triple) = memory:brief AS ?briefTriple)
+                $this memory:kind ?kind .
+                {
+                    $this rdf:reifies ?triple .
+                    BIND (PREDICATE(?triple) AS ?p)
+                } UNION {
+                    $this rdf:predicate ?p .
+                }
+                BIND (?p = memory:brief AS ?briefTriple)
                 BIND (?kind IN (memory:SessionBrief, memory:TopicBrief) AS ?briefRecord)
                 FILTER (?briefTriple != ?briefRecord)
             }
@@ -417,9 +392,16 @@ memory:BriefPropositionShape
         sh:prefixes memory:BriefShapePrefixes ;
         sh:select """
             SELECT $this WHERE {
-                $this rdf:reifies ?triple .
-                FILTER (PREDICATE(?triple) = memory:brief)
-                FILTER (!isLiteral(OBJECT(?triple)) || !(datatype(OBJECT(?triple)) IN (xsd:string, rdf:langString)))
+                {
+                    $this rdf:reifies ?triple .
+                    BIND (PREDICATE(?triple) AS ?p)
+                    BIND (OBJECT(?triple) AS ?o)
+                } UNION {
+                    $this rdf:predicate ?p ;
+                        rdf:object ?o .
+                }
+                FILTER (?p = memory:brief)
+                FILTER (!isLiteral(?o) || !(datatype(?o) IN (xsd:string, rdf:langString)))
             }
         """ ;
     ] .

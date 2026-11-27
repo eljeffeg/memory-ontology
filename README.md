@@ -16,7 +16,7 @@ These RDF vocabularies and SHACL shapes describe temporal assertions, agent memo
 | [software.ttl](ontologies/software.ttl) | Software-specific terms, including repositories, source files, issues, commits, and dependencies. Builds on the work vocabulary. | `http://nova.dev/software#` |
 | [answer-evidence-shapes.ttl](ontologies/answer-evidence-shapes.ttl) | SHACL constraints for cited answer evidence and inferred-evidence derivations, not for the underlying domain data. | `http://nova.dev/ns/answer-evidence#` |
 
-The four ontology files include labels, definitions, and further modeling notes. `temporal.ttl` and `memory.ttl` declare version `0.1.0`; `work.ttl` and `software.ttl` declare `0.2.0`. The namespace IRIs identify vocabulary terms; they are not a guarantee that an ontology can be downloaded from those addresses.
+The four ontology files include labels, definitions, and further modeling notes. All four declare version `0.2.0`. The namespace IRIs identify vocabulary terms; they are not a guarantee that an ontology can be downloaded from those addresses.
 
 ## Getting started
 
@@ -41,9 +41,37 @@ A reasoner that supports the relevant axioms can infer, for example, that the co
 
 ## Time and memory
 
-A `temporal:TemporalAssertion` is an identifiable record that uses RDF 1.2 `rdf:reifies` to refer to a triple term. The referenced triple is not automatically asserted as an ordinary fact. Valid time describes when that fact holds; recorded time describes when a store held the record. Valid-time intervals are half-open: the start is inclusive and the end exclusive. An instant uses `temporal:validAt` instead of interval endpoints.
+A `temporal:TemporalAssertion` is an identifiable record that refers to one triple. It uses RDF 1.2 `rdf:reifies` with a triple term or, in a store without triple terms, classic `rdf:subject`, `rdf:predicate`, and `rdf:object` on the record. The shapes accept either form, but not both on one record. The referenced triple is not automatically asserted as an ordinary fact. Valid time describes when that fact holds; recorded time describes when a store held the record. Valid-time intervals are half-open: the start is inclusive and the end exclusive. An instant uses `temporal:validAt` instead of interval endpoints.
 
-Memory records add memory:kind and other memory-specific properties to temporal assertions. They use intervals beginning with temporal:validFrom, not temporal:validAt. Superseding records are separate resources. A store may keep recorded time as commit sequences rather than datetime literals; a portable RDF export must include the corresponding recorded-time coordinates. RDF 1.2 triple terms and rdf:reifies require compatible tooling.
+Memory records add memory:kind and other memory-specific properties to temporal assertions. They use intervals beginning with temporal:validFrom, not temporal:validAt. Superseding records are separate resources.
+
+### Closing a record
+
+A record is never ended by editing it. A new record points at it with `temporal:supersedes` and names the clock it closes with `temporal:closes`. That closing record has its own recorded time and agent, so the close is itself a fact with a recorded time.
+
+| Case | `temporal:closes` | Meaning |
+|---|---|---|
+| Supersession | `temporal:ValidTime` | The world changed. The earlier statement was true until the closing record's `temporal:validFrom`. |
+| Correction | `temporal:RecordedTime` | The earlier record was a mistake. It was held until the closing record was recorded, and it was never true in the world. |
+| Closure | `temporal:ValidTime`, `temporal:RecordedTime`, or both | A `temporal:Closure` ends the earlier record and asserts nothing in its place. It reifies no triple. |
+| Retraction | `temporal:RecordedTime`, `temporal:ValidTime`, or both | A `memory:Retraction` is a closure that withdraws a memory record. |
+
+A domain record that supersedes and carries no `temporal:closes` is a supersession. A closure and a memory record must name the clock. Domain records and memory records may both carry a correction.
+
+A closure is typed both `temporal:TemporalAssertion` and `temporal:Closure`, because SHACL reads asserted types only. Do not restate the old triple to end it: that would assert the triple again.
+
+```turtle
+ex:price-end a temporal:TemporalAssertion , temporal:Closure ;
+    temporal:supersedes ex:price-1 ;
+    temporal:closes temporal:ValidTime ;
+    temporal:validFrom "2026-12-01T00:00:00Z"^^xsd:dateTimeStamp .
+```
+
+`temporal:validUntil` and `temporal:recordedUntil` on the earlier record are stored copies of an end, derived from the closing record. A query as of recorded time *t* takes ends only from closing records recorded at or before *t*, and ignores a stored copy whose closing record was recorded after *t*. Otherwise a knowledge cut taken before the close was recorded would see the close. See `tests/valid/supersession-closes-valid-time.ttl`, `correction-closes-recorded-time.ttl`, `retraction-closes-recorded-time.ttl`, `domain-closure-ends-valid-time.ttl`, and the other `domain-*` fixtures.
+
+### Partial use
+
+You may use these property IRIs without the shapes, with the meanings given here. A store without RDF 1.2 triple terms can still conform: reify with `rdf:subject`, `rdf:predicate`, and `rdf:object` on the record instead of `rdf:reifies`. A closure uses neither form. Typing the record `rdf:Statement` is optional. Data that does not pass the shapes should not claim conformance. A store may keep recorded time as commit sequences rather than datetime literals; a portable RDF export must include the corresponding recorded-time coordinates. RDF 1.2 triple terms and rdf:reifies require compatible tooling.
 
 Curated knowledge from outside memory, such as published reports or third-party briefs, is not a memory record. Keep it in its own graph, for example as `work:Document` resources linked to topics with `work:about`. A belief, procedure, proposal, or retraction can name such a resource with `memory:source`. `memory:evidence` stays reserved for memory records, so a reader can tell what was observed in a session from what came from an outside source.
 
