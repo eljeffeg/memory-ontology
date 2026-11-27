@@ -10,8 +10,9 @@
 #
 # Seventeen beliefs (ex:v1 to ex:v17) and the records that close them. A close
 # with a successor is the successor belief itself. A close with no successor is
-# a memory:Retraction. Every closing record has its own temporal:recordedFrom,
-# which is what a knowledge cut reads.
+# a memory:Retraction, typed temporal:Closure, which reifies no triple. Every
+# closing record has its own temporal:recordedFrom, which is what a knowledge
+# cut reads.
 #
 # Translated from DreamLab-AI/ontomark conformance/temporal/vectors-v2.json
 # (release v0.10.0). See README.md in this directory for the mapping.
@@ -153,8 +154,7 @@ ex:v17 a temporal:TemporalAssertion ;
 # Closes with no successor.
 
 # v1 was recorded with its end already known.
-ex:x-v1 a temporal:TemporalAssertion ;
-    rdf:reifies <<( ex:camera rdfs:subClassOf ex:device )>> ;
+ex:x-v1 a temporal:TemporalAssertion , temporal:Closure ;
     memory:kind memory:Retraction ;
     memory:agent ex:curator ;
     temporal:supersedes ex:v1 ;
@@ -163,8 +163,7 @@ ex:x-v1 a temporal:TemporalAssertion ;
     temporal:recordedFrom "2026-03-01T09:00:00Z"^^xsd:dateTimeStamp .
 
 # v8 is corrected; recorded 2026-09-15T00:00:00Z.
-ex:x-c3 a temporal:TemporalAssertion ;
-    rdf:reifies <<( ex:tripod rdfs:subClassOf ex:sensor )>> ;
+ex:x-c3 a temporal:TemporalAssertion , temporal:Closure ;
     memory:kind memory:Retraction ;
     memory:agent ex:curator ;
     temporal:supersedes ex:v8 ;
@@ -173,8 +172,7 @@ ex:x-c3 a temporal:TemporalAssertion ;
     temporal:recordedFrom "2026-09-15T00:00:00Z"^^xsd:dateTimeStamp .
 
 # v9 ends and is withdrawn; recorded 2026-11-01T00:00:00Z.
-ex:x-c4 a temporal:TemporalAssertion ;
-    rdf:reifies <<( ex:lidar rdfs:subClassOf ex:sensor )>> ;
+ex:x-c4 a temporal:TemporalAssertion , temporal:Closure ;
     memory:kind memory:Retraction ;
     memory:agent ex:curator ;
     temporal:supersedes ex:v9 ;
@@ -183,8 +181,7 @@ ex:x-c4 a temporal:TemporalAssertion ;
     temporal:recordedFrom "2026-11-01T00:00:00Z"^^xsd:dateTimeStamp .
 
 # v10 is corrected; recorded 2026-12-05T00:00:00Z.
-ex:x-c5 a temporal:TemporalAssertion ;
-    rdf:reifies <<( ex:radar rdfs:subClassOf ex:sensor )>> ;
+ex:x-c5 a temporal:TemporalAssertion , temporal:Closure ;
     memory:kind memory:Retraction ;
     memory:agent ex:curator ;
     temporal:supersedes ex:v10 ;
@@ -193,8 +190,7 @@ ex:x-c5 a temporal:TemporalAssertion ;
     temporal:recordedFrom "2026-12-05T00:00:00Z"^^xsd:dateTimeStamp .
 
 # v12 ends; recorded 2027-01-15T00:00:00Z.
-ex:x-c6 a temporal:TemporalAssertion ;
-    rdf:reifies <<( ex:sonar rdfs:subClassOf ex:sensor )>> ;
+ex:x-c6 a temporal:TemporalAssertion , temporal:Closure ;
     memory:kind memory:Retraction ;
     memory:agent ex:curator ;
     temporal:supersedes ex:v12 ;
@@ -203,8 +199,7 @@ ex:x-c6 a temporal:TemporalAssertion ;
     temporal:recordedFrom "2027-01-15T00:00:00Z"^^xsd:dateTimeStamp .
 
 # v12 ends; recorded 2027-01-20T00:00:00Z.
-ex:x-c7 a temporal:TemporalAssertion ;
-    rdf:reifies <<( ex:sonar rdfs:subClassOf ex:sensor )>> ;
+ex:x-c7 a temporal:TemporalAssertion , temporal:Closure ;
     memory:kind memory:Retraction ;
     memory:agent ex:curator ;
     temporal:supersedes ex:v12 ;
@@ -213,8 +208,7 @@ ex:x-c7 a temporal:TemporalAssertion ;
     temporal:recordedFrom "2027-01-20T00:00:00Z"^^xsd:dateTimeStamp .
 
 # v5 ends; recorded 2026-04-20T00:00:00Z.
-ex:x-c8 a temporal:TemporalAssertion ;
-    rdf:reifies <<( ex:drone rdfs:subClassOf ex:uav )>> ;
+ex:x-c8 a temporal:TemporalAssertion , temporal:Closure ;
     memory:kind memory:Retraction ;
     memory:agent ex:curator ;
     temporal:supersedes ex:v5 ;
@@ -223,8 +217,7 @@ ex:x-c8 a temporal:TemporalAssertion ;
     temporal:recordedFrom "2026-04-20T00:00:00Z"^^xsd:dateTimeStamp .
 
 # v7 ends; recorded 2026-07-01T00:00:00Z.
-ex:x-c9 a temporal:TemporalAssertion ;
-    rdf:reifies <<( ex:gimbal ex:isPartOf ex:camera )>> ;
+ex:x-c9 a temporal:TemporalAssertion , temporal:Closure ;
     memory:kind memory:Retraction ;
     memory:agent ex:curator ;
     temporal:supersedes ex:v7 ;
@@ -233,8 +226,7 @@ ex:x-c9 a temporal:TemporalAssertion ;
     temporal:recordedFrom "2026-07-01T00:00:00Z"^^xsd:dateTimeStamp .
 
 # v11 ends; recorded 2026-12-10T00:00:00Z.
-ex:x-c10 a temporal:TemporalAssertion ;
-    rdf:reifies <<( ex:radar rdfs:subClassOf ex:sensor )>> ;
+ex:x-c10 a temporal:TemporalAssertion , temporal:Closure ;
     memory:kind memory:Retraction ;
     memory:agent ex:curator ;
     temporal:supersedes ex:v11 ;
@@ -243,8 +235,7 @@ ex:x-c10 a temporal:TemporalAssertion ;
     temporal:recordedFrom "2026-12-10T00:00:00Z"^^xsd:dateTimeStamp .
 
 # v17 ends; recorded 2031-03-01T00:00:00Z.
-ex:x-c11 a temporal:TemporalAssertion ;
-    rdf:reifies <<( ex:altimeter rdfs:subClassOf ex:sensor )>> ;
+ex:x-c11 a temporal:TemporalAssertion , temporal:Closure ;
     memory:kind memory:Retraction ;
     memory:agent ex:curator ;
     temporal:supersedes ex:v17 ;
@@ -253,8 +244,7 @@ ex:x-c11 a temporal:TemporalAssertion ;
     temporal:recordedFrom "2031-03-01T00:00:00Z"^^xsd:dateTimeStamp .
 
 # v17 ends; recorded 2031-04-01T00:00:00Z.
-ex:x-c12 a temporal:TemporalAssertion ;
-    rdf:reifies <<( ex:altimeter rdfs:subClassOf ex:sensor )>> ;
+ex:x-c12 a temporal:TemporalAssertion , temporal:Closure ;
     memory:kind memory:Retraction ;
     memory:agent ex:curator ;
     temporal:supersedes ex:v17 ;

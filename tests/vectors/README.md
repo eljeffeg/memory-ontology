@@ -32,8 +32,8 @@ it exists, whenever it was recorded, and the cases must catch it.
 
 A close that has a successor is the successor belief: it carries
 `temporal:supersedes` and `temporal:closes`, and its `temporal:validFrom` is the
-earlier belief's end. A close with no successor is a `memory:Retraction` that
-restates the triple. When it closes valid time, its `temporal:validFrom` is the
+earlier belief's end. A close with no successor is a `memory:Retraction`, typed
+`temporal:Closure`, that reifies no triple. When it closes valid time, its `temporal:validFrom` is the
 end. When it closes only recorded time, its `temporal:validFrom` repeats the
 belief's start, because a correction names no valid-time end.
 

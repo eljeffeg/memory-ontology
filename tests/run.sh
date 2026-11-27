@@ -91,7 +91,8 @@ ask "$vec/held.rq" > "$work/held.tsv"
 differing "$work/held.tsv" > "$work/differing.tsv"
 for c in $(cut -f1 "$work/expected.tsv" | sort -u); do
   label="$(awk -F'\t' -v c="$c" '$1==c {print $2; exit}' "$work/expected.tsv")"
-  if line="$(grep -P "^$c\t" "$work/differing.tsv")"; then
+  line="$(awk -F'\t' -v c="$c" '$1==c' "$work/differing.tsv")"
+  if [[ -n "$line" ]]; then
     fail=$((fail+1)); echo "FAIL  vectors/$c $label"
     echo "      expected: $(printf '%s' "$line" | cut -f2)"
     echo "      got:      $(printf '%s' "$line" | cut -f3)"
